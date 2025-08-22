@@ -1,18 +1,155 @@
 extends CharacterBody2D
+##
+## Player.gd (Godot 4, 2D)
+## - Movimiento con WASD
+## - Vida y daño con invulnerabilidad breve
+## - Señales para conectar HUD más adelante
+## - Hooks para Hurtbox/Magnet si los agregás como nodos hijos
+##
 
-@export var speed := 260.0
-@export var max_hp := 100
-var hp := 100
+# --- MOVIMIENTO ---
+@export var speed: float = 260.0           # velocidad base (px/s)
+@export var acceleration: float = 2000.0   # acelera hacia el input (suave)
+@export var friction: float = 2000.0       # frena cuando no hay input
+
+# --- VIDA / DAÑO ---
+@export var max_hp: int = 100
+@export var i_frames_time: float = 0.5     # invulnerabilidad tras recibir daño (segundos)
+var hp: int
+
+# --- DEBUG ---
+@export var print_collisions: bool = false # imprime colisiones al chocar
+
+# --- SEÑALES ---
+signal hp_changed(current: int, max_value: int)
+signal died
+
+# --- ESTADO INTERNO ---
+var _input_dir := Vector2.ZERO
+var _invulnerable := false
+
+# Timers internos
+var _i_frames_timer: Timer
 
 func _ready() -> void:
+	# Vida
 	hp = max_hp
+	emit_signal("hp_changed", hp, max_hp)
+
+	# Grupo
 	add_to_group("player")
 
-func _physics_process(_dt: float) -> void:
-	var dir := Vector2(
+	# Timer de invulnerabilidad
+	_i_frames_timer = Timer.new()
+	_i_frames_timer.wait_time = i_frames_time
+	_i_frames_timer.one_shot = true
+	_i_frames_timer.timeout.connect(_on_i_frames_timeout)
+	add_child(_i_frames_timer)
+
+	# Conexiones opcionales si existen nodos hijos (no rompen si no están)
+	# Hurtbox: Area2D para recibir contacto de enemigos
+	if has_node("Hurtbox"):
+		var hb := get_node("Hurtbox")
+		if hb.has_signal("body_entered"):
+			hb.body_entered.connect(_on_hurtbox_body_entered)
+		if hb.has_signal("area_entered"):
+			hb.area_entered.connect(_on_hurtbox_area_entered)
+
+	# Magnet: Area2D grande para atraer/recoger pickups
+	if has_node("Magnet"):
+		var mg := get_node("Magnet")
+		if mg.has_signal("area_entered"):
+			mg.area_entered.connect(_on_magnet_area_entered)
+
+func _process(_dt: float) -> void:
+	# Leer input en _process (más reactivo), mover en _physics_process
+	_input_dir = Vector2(
 		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
 		Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
 	).normalized()
 
-	velocity = dir * speed
+func _physics_process(dt: float) -> void:
+	# Movimiento suave con aceleración/frenado
+	if _input_dir != Vector2.ZERO:
+		var desired := _input_dir * speed
+		velocity = velocity.move_toward(desired, acceleration * dt)
+	else:
+		velocity = velocity.move_toward(Vector2.ZERO, friction * dt)
+
 	move_and_slide()
+
+	# Debug de colisiones contra mundo/cuerpos
+	if print_collisions and get_slide_collision_count() > 0:
+		for i in get_slide_collision_count():
+			var col := get_slide_collision(i)
+			if col and col.get_collider():
+				print("Colisioné con: ", col.get_collider())
+
+# --- API PÚBLICA ---
+
+func heal(amount: int) -> void:
+	if amount <= 0: return
+	hp = clamp(hp + amount, 0, max_hp)
+	emit_signal("hp_changed", hp, max_hp)
+
+func take_damage(amount: int) -> void:
+	if amount <= 0: return
+	if _invulnerable: return
+
+	hp = clamp(hp - amount, 0, max_hp)
+	emit_signal("hp_changed", hp, max_hp)
+
+	# activar i-frames
+	_invulnerable = true
+	_i_frames_timer.start()
+	# (Opcional: parpadear sprite durante i-frames)
+	_blink_start()
+
+	if hp <= 0:
+		_die()
+
+# --- HANDLERS DE ÁREAS (opcionales) ---
+
+func _on_hurtbox_body_entered(body: Node) -> void:
+	# Si un enemigo (con grupo "enemy") me toca, recibir daño fijo de contacto
+	if body.is_in_group("enemy"):
+		take_damage(10)
+
+func _on_hurtbox_area_entered(area: Area2D) -> void:
+	# Si un área de daño enemigo me toca
+	if area.is_in_group("enemy_hitbox"):
+		if area.has_method("get_damage"):
+			take_damage(int(area.get_damage()))
+		else:
+			take_damage(10)
+
+func _on_magnet_area_entered(area: Area2D) -> void:
+	# Recoger XP/monedas si las pickups usan grupo "pickup"
+	if area.is_in_group("pickup"):
+		if area.has_method("collect"):
+			area.collect() # que la pickup se entregue a GameState y se borre
+		else:
+			area.queue_free()
+
+# --- PRIVADO ---
+
+func _on_i_frames_timeout() -> void:
+	_invulnerable = false
+	_blink_stop()
+
+func _die() -> void:
+	emit_signal("died")
+	queue_free()
+
+func _blink_start() -> void:
+	# Parpadeo simple del Sprite si existe (visual de invulnerabilidad)
+	if has_node("Sprite"):
+		var spr := get_node("Sprite") as CanvasItem
+		if spr:
+			spr.modulate.a = 0.5
+
+func _blink_stop() -> void:
+	if has_node("Sprite"):
+		var spr := get_node("Sprite") as CanvasItem
+		if spr:
+			spr.modulate.a = 1.0
