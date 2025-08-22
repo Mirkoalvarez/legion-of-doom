@@ -1,0 +1,29 @@
+[gd_scene load_steps=5 format=3 uid="uid://dxi5wj17qwnh0"]
+
+[ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/player/player.gd" id="1_8afob"]
+[ext_resource type="Texture2D" uid="uid://tx6mgme3fphc" path="res://icon.svg" id="2_dovo2"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dovo2"]
+radius = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gmlin"]
+radius = 100.0
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+collision_mask = 10
+script = ExtResource("1_8afob")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+position = Vector2(0.1, 0.1)
+scale = Vector2(0.177, 0.176)
+texture = ExtResource("2_dovo2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_dovo2")
+
+[node name="WeaponController" type="Node" parent="."]
+
+[node name="Magnet" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Magnet"]
+shape = SubResource("CircleShape2D_gmlin")

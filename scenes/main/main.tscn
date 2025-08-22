@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://kxwb4fq37i2w"]
+
+[ext_resource type="Script" uid="uid://2vp5l2p65rd5" path="res://scenes/main/main.gd" id="1_hyk8p"]
+[ext_resource type="PackedScene" uid="uid://dxi5wj17qwnh0" path="res://scenes/player/player.tscn" id="2_iuonh"]
+[ext_resource type="PackedScene" uid="uid://p4i8brg70eor" path="res://scenes/ui/hud.tscn" id="3_k2fmo"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_hyk8p")
+
+[node name="Player" parent="." instance=ExtResource("2_iuonh")]
+position = Vector2(962, 535)
+slide_on_ceiling = false
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+position_smoothing_enabled = true
+
+[node name="HUD" parent="." instance=ExtResource("3_k2fmo")]
