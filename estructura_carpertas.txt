@@ -38,3 +38,26 @@ res://
 │  ├─ components/              # Health.gd, DamageArea.gd, Knockback.gd…
 │  └─ systems/                 # Spawner.gd, GameController.gd, AudioManager.gd
 └─ .gitignore
+
+
+--------------------------------------------------------------------------------------------
+
+| Carpeta                         | Contenido                                                      |
+| ------------------------------- | -------------------------------------------------------------- |
+| `assets/sprites/player/`        | spritesheets del jugador                                       |
+| `assets/sprites/enemies/`       | sprites de cada enemigo                                        |
+| `assets/sprites/tilesets/`      | tiles, decorados                                               |
+| `assets/audio/sfx/` / `music/`  | sonidos y música                                               |
+| `scenes/actors/player/`         | `Player.tscn` `Player.gd`                                      |
+| `scenes/actors/enemies/Goblin/` | `EnemyGoblin.tscn` `EnemyGoblin.gd`                            |
+| `scenes/weapons/`               | escenas de armas (nodo + timers)                               |
+| `scenes/projectiles/`           | escenas de proyectiles (`Area2D`)                              |
+| `scenes/pickups/`               | `XPGem.tscn`, `Coin.tscn`                                      |
+| `resources/enemies/`            | `EnemyData_*.tres` (stats)                                     |
+| `resources/weapons/`            | `WeaponData_*.tres`                                            |
+| `resources/waves/`              | `WaveConfig_*.tres`                                            |
+| `src/components/`               | `Health.gd`, `DamageArea.gd`, `Knockback.gd`                   |
+| `src/systems/`                  | `GameController.gd`, `Spawner.gd`                              |
+| `autoload/`                     | `GameState.gd`, `Save.gd` (y los marcás en Project → AutoLoad) |
+
+
