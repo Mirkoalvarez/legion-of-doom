@@ -1,0 +1,40 @@
+res://
+├─ addons/                     # (opcional) plugins de Godot
+├─ autoload/                   # scripts autoload (GameState, Save, AudioBus…)
+├─ assets/                     # SOLO archivos fuente (arte/sonido)
+│  ├─ sprites/
+│  │  ├─ player/
+│  │  ├─ enemies/
+│  │  ├─ tilesets/
+│  │  ├─ fx/                   # explosiones, halos, partículas
+│  │  └─ ui/                   # iconos, cartas, barras
+│  ├─ audio/
+│  │  ├─ sfx/
+│  │  └─ music/
+│  ├─ fonts/
+│  └─ shaders/                 # .gdshader para efectos 2D (si usás)
+├─ resources/                  # .tres/.res (datos editables)
+│  ├─ enemies/                 # EnemyData_*.tres (vida, daño, vel)
+│  ├─ weapons/                 # WeaponData_*.tres (cadencia, daño, proyectiles)
+│  ├─ waves/                   # WaveConfig_*.tres (spawns por minuto/oleada)
+│  └─ materials/               # (opcional) materiales 2D
+├─ scenes/
+│  ├─ main/                    # Main.tscn, controladores globales
+│  ├─ world/                   # mapas/TileMap, decorado, colisiones
+│  ├─ actors/                  # personajes con lógica (player, enemigos, aliados)
+│  │  ├─ player/               # Player.tscn + Player.gd
+│  │  ├─ enemies/              # subcarpetas por arquetipo
+│  │  │  ├─ Goblin/
+│  │  │  │  └─ EnemyGoblin.tscn, EnemyGoblin.gd
+│  │  │  └─ Wolf/              # EnemyWolf.tscn, EnemyWolf.gd, etc.
+│  │  ├─ bosses/               # jefes/miniboss
+│  │  └─ familiars/            # Naxu, etc.
+│  ├─ weapons/                 # escenas de armas (autodisparo, órbitas…)
+│  ├─ projectiles/             # balas, cuchillas, orbes (Area2D/RigidBody2D)
+│  ├─ pickups/                 # XP gem, monedas, cofres
+│  ├─ effects/                 # escenas de partículas/animaciones
+│  └─ ui/                      # HUD, menús, carta-levelup, pausa
+├─ src/                        # scripts reutilizables (sin escena)
+│  ├─ components/              # Health.gd, DamageArea.gd, Knockback.gd…
+│  └─ systems/                 # Spawner.gd, GameController.gd, AudioManager.gd
+└─ .gitignore
