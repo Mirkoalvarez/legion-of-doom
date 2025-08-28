@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://dxi5wj17qwnh0"]
+[gd_scene load_steps=19 format=3 uid="uid://dxi5wj17qwnh0"]
 
 [ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/actors/player/player.gd" id="1_8afob"]
-[ext_resource type="Texture2D" uid="uid://tx6mgme3fphc" path="res://icon.svg" id="2_dovo2"]
+[ext_resource type="Texture2D" uid="uid://cifi5kqtjh2p1" path="res://assets/sprites/player/Male 16-1.png" id="2_l17oj"]
+[ext_resource type="PackedScene" uid="uid://dh20afsdwgovh" path="res://scenes/components/Hurtbox/hurtbox.tscn" id="3_oj104"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dovo2"]
 radius = 14.0
@@ -9,21 +10,142 @@ radius = 14.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_gmlin"]
 radius = 100.0
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_oj104"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(0, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mpktj"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(32, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yg5k4"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(64, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qdyt2"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2g7f"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fp13k"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5bhx7"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i174x"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8bj4u"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_inh5e"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hcvpp"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(32, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4iwnj"]
+atlas = ExtResource("2_l17oj")
+region = Rect2(64, 64, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_068wj"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oj104")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mpktj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yg5k4")
+}],
+"loop": true,
+"name": &"back",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qdyt2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2g7f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fp13k")
+}],
+"loop": true,
+"name": &"front",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5bhx7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i174x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8bj4u")
+}],
+"loop": true,
+"name": &"left",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_inh5e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hcvpp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4iwnj")
+}],
+"loop": true,
+"name": &"right",
+"speed": 7.0
+}]
+
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 collision_mask = 10
 script = ExtResource("1_8afob")
 
-[node name="Sprite" type="Sprite2D" parent="."]
-position = Vector2(0.1, 0.1)
-scale = Vector2(0.177, 0.176)
-texture = ExtResource("2_dovo2")
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+visible = false
+scale = Vector2(2, 2)
 shape = SubResource("CircleShape2D_dovo2")
 
-[node name="WeaponController" type="Node" parent="."]
-
 [node name="Magnet" type="Area2D" parent="."]
+visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Magnet"]
 shape = SubResource("CircleShape2D_gmlin")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0.1, 0.1)
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_068wj")
+animation = &"front"
+frame = 2
+frame_progress = 0.664057
+
+[node name="WeaponController" type="Node" parent="."]
+
+[node name="Hurtbox" parent="." instance=ExtResource("3_oj104")]
+collision_layer = 1
+collision_mask = 1
+
+[connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]
+
+[editable path="Hurtbox"]

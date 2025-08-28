@@ -1,10 +1,11 @@
 extends CharacterBody2D
 ##
 ## Player.gd (Godot 4, 2D)
-## - Movimiento con WASD
-## - Vida y daño con invulnerabilidad breve
-## - Señales para conectar HUD más adelante
-## - Hooks para Hurtbox/Magnet si los agregás como nodos hijos
+## - Movimiento con WASD (aceleración/frenado suave)
+## - Vida y daño con invulnerabilidad breve (i-frames)
+## - Animación por dirección con AnimatedSprite2D (front/left/right/back)
+## - Señales para HUD
+## - Hooks para Hurtbox/Magnet si existen
 ##
 
 # --- MOVIMIENTO ---
@@ -30,6 +31,9 @@ var _invulnerable := false
 
 # Timers internos
 var _i_frames_timer: Timer
+
+# --- NODOS (ajustá la ruta si tu nodo animado se llama distinto) ---
+@onready var anim: AnimatedSprite2D = $Sprite
 
 func _ready() -> void:
 	# Vida
@@ -67,6 +71,7 @@ func _process(_dt: float) -> void:
 		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
 		Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
 	).normalized()
+	_update_animation()
 
 func _physics_process(dt: float) -> void:
 	# Movimiento suave con aceleración/frenado
@@ -85,6 +90,22 @@ func _physics_process(dt: float) -> void:
 			if col and col.get_collider():
 				print("Colisioné con: ", col.get_collider())
 
+# --- ANIMACIÓN ---
+func _update_animation() -> void:
+	if anim == null:
+		return
+
+	if _input_dir == Vector2.ZERO:
+		anim.stop()
+		anim.frame = 0
+		return
+
+	# Elegimos anim por componente dominante
+	if abs(_input_dir.x) > abs(_input_dir.y):
+		anim.play("right" if _input_dir.x > 0 else "left")
+	else:
+		anim.play("back" if _input_dir.y < 0 else "front")
+
 # --- API PÚBLICA ---
 
 func heal(amount: int) -> void:
@@ -98,11 +119,11 @@ func take_damage(amount: int) -> void:
 
 	hp = clamp(hp - amount, 0, max_hp)
 	emit_signal("hp_changed", hp, max_hp)
-
+	print(hp)
+	
 	# activar i-frames
 	_invulnerable = true
 	_i_frames_timer.start()
-	# (Opcional: parpadear sprite durante i-frames)
 	_blink_start()
 
 	if hp <= 0:
@@ -127,7 +148,7 @@ func _on_magnet_area_entered(area: Area2D) -> void:
 	# Recoger XP/monedas si las pickups usan grupo "pickup"
 	if area.is_in_group("pickup"):
 		if area.has_method("collect"):
-			area.collect() # que la pickup se entregue a GameState y se borre
+			area.collect()
 		else:
 			area.queue_free()
 
@@ -142,14 +163,11 @@ func _die() -> void:
 	queue_free()
 
 func _blink_start() -> void:
-	# Parpadeo simple del Sprite si existe (visual de invulnerabilidad)
-	if has_node("Sprite"):
-		var spr := get_node("Sprite") as CanvasItem
-		if spr:
-			spr.modulate.a = 0.5
+	# Parpadeo simple del nodo animado durante i-frames
+	if anim:
+		anim.modulate.a = 0.5
 
 func _blink_stop() -> void:
-	if has_node("Sprite"):
-		var spr := get_node("Sprite") as CanvasItem
-		if spr:
-			spr.modulate.a = 1.0
+	if anim:
+		anim.modulate.a = 1.0
+		

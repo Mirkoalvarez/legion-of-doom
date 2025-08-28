@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://c3jbdmtbanto0"]
+
+[ext_resource type="Texture2D" uid="uid://bfqs7hu34c1kj" path="res://assets/sprites/tilesets/terrain/grass.png" id="1_dphjl"]
+[ext_resource type="Script" uid="uid://dr2bd2a3xfdn0" path="res://scenes/world/world.gd" id="1_sl2e5"]
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_sl2e5")
+metadata/_edit_group_ = true
+
+[node name="Background" type="Sprite2D" parent="."]
+texture_filter = 2
+texture_repeat = 2
+position = Vector2(961, 543)
+texture = ExtResource("1_dphjl")
+region_enabled = true
+region_rect = Rect2(-35.046, -41.371, 1920, 1080)

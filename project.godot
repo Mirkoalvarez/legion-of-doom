@@ -60,7 +60,19 @@ pause={
 
 [layer_names]
 
+2d_render/layer_1="Player"
+2d_render/layer_2="Enemies"
+2d_render/layer_3="Projectiles_Player"
+2d_render/layer_4="Projectiles_Enemy"
+2d_render/layer_5="Pickups"
+2d_render/layer_6="World"
+2d_render/layer_7="Hitbox_Player"
+2d_render/layer_8="Hitbox_Enemy"
 2d_physics/layer_1="Player"
 2d_physics/layer_2="Enemies"
 2d_physics/layer_3="Projectiles_Player"
 2d_physics/layer_4="Pickups"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0

@@ -6,7 +6,7 @@ extends CharacterBody2D
 ## - Daño de contacto (opcional con cooldown)
 ##
 
-@export var speed: float = 120.0
+@export var speed: float = 90.0
 @export var max_hp: int = 20
 @export var contact_damage: int = 10
 var hp: int
