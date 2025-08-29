@@ -22,21 +22,22 @@ res://
 │  ├─ main/                    # Main.tscn, controladores globales
 │  ├─ world/                   # mapas/TileMap, decorado, colisiones
 │  ├─ actors/                  # personajes con lógica (player, enemigos, aliados)
-│  │  ├─ player/               # Player.tscn + Player.gd
-│  │  ├─ enemies/              # subcarpetas por arquetipo
+│  │  ├─ player/               # Player.tscn + Player.gd , EnemyDetector.gd
+│  │  ├─ enemies/              # EnemyBasic.tscn, enemy.gd
 │  │  │  ├─ Goblin/
 │  │  │  │  └─ EnemyGoblin.tscn, EnemyGoblin.gd
 │  │  │  └─ Wolf/              # EnemyWolf.tscn, EnemyWolf.gd, etc.
 │  │  ├─ bosses/               # jefes/miniboss
 │  │  └─ familiars/            # Naxu, etc.
+│  ├─ components/              # Hitbox.tscn/gd, Hurtbox.tscn/gd
 │  ├─ weapons/                 # escenas de armas (autodisparo, órbitas…)
-│  ├─ projectiles/             # balas, cuchillas, orbes (Area2D/RigidBody2D)
+│  ├─ projectiles/             # balas, cuchillas, orbes (Area2D/RigidBody2D) player_projectiles/PlayerBullet.tscn
 │  ├─ pickups/                 # XP gem, monedas, cofres
 │  ├─ effects/                 # escenas de partículas/animaciones
 │  └─ ui/                      # HUD, menús, carta-levelup, pausa
 ├─ src/                        # scripts reutilizables (sin escena)
-│  ├─ components/              # Health.gd, DamageArea.gd, Knockback.gd…
-│  └─ systems/                 # Spawner.gd, GameController.gd, AudioManager.gd
+│  ├─ components/              # Projectile.gd ,Health.gd, DamageArea.gd, Knockback.gd…
+│  └─ systems/                 # Spawner.tscn, spawner.gd, GameController.gd, AudioManager.gd
 └─ .gitignore
 
 
@@ -48,16 +49,19 @@ res://
 | `assets/sprites/enemies/`       | sprites de cada enemigo                                        |
 | `assets/sprites/tilesets/`      | tiles, decorados                                               |
 | `assets/audio/sfx/` / `music/`  | sonidos y música                                               |
-| `scenes/actors/player/`         | `Player.tscn` `Player.gd`                                      |
-| `scenes/actors/enemies/Goblin/` | `EnemyGoblin.tscn` `EnemyGoblin.gd`                            |
+| `scenes/actors/player/`         | `Player.tscn` `Player.gd`, `enemy_detector.gd`                 |
+| `scenes/actors/enemies`         | `EnemyBasic.tscn`, `enemy.gd`                                  |
+| `scenes/components/Hitbox/`     | `hitbox.tscn`, `hitbox.gd`                                     |
+| `scenes/components/Hurtbox/`    | `hurtbox.tscn`, `hurtbox.gd`                                   |
 | `scenes/weapons/`               | escenas de armas (nodo + timers)                               |
-| `scenes/projectiles/`           | escenas de proyectiles (`Area2D`)                              |
+| `scenes/projectiles/player_projectiles/` | `player_bullet.tscn` (usa `Projectile.gd`)            |
+| `scenes/world/`                 | `world.tscn`, `world.gd`                                       |
+| `scenes/main/`                  | `main.tscn`, `main.gd`                                         |
+| `scenes/ui/`                    | `hud.tscn`                                                     |
 | `scenes/pickups/`               | `XPGem.tscn`, `Coin.tscn`                                      |
 | `resources/enemies/`            | `EnemyData_*.tres` (stats)                                     |
 | `resources/weapons/`            | `WeaponData_*.tres`                                            |
 | `resources/waves/`              | `WaveConfig_*.tres`                                            |
-| `src/components/`               | `Health.gd`, `DamageArea.gd`, `Knockback.gd`                   |
-| `src/systems/`                  | `GameController.gd`, `Spawner.gd`                              |
+| `src/components/Projectile/`    | `projectile.gd`                                                |
+| `src/systems/Spawner/`          | `spawner.tscn`, `spawner.gd`                                   |
 | `autoload/`                     | `GameState.gd`, `Save.gd` (y los marcás en Project → AutoLoad) |
-
-
