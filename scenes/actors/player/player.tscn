@@ -137,12 +137,12 @@ position = Vector2(0.1, 0.1)
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_068wj")
 animation = &"front"
-frame = 2
-frame_progress = 0.664057
+frame_progress = 0.673268
 
 [node name="WeaponController" type="Node" parent="."]
 
 [node name="Hurtbox" parent="." instance=ExtResource("3_oj104")]
+visible = false
 collision_layer = 1
 collision_mask = 1
 

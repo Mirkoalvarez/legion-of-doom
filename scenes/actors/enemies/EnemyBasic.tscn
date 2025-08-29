@@ -13,7 +13,7 @@ diffuse_texture = ExtResource("2_xt8b6")
 
 [node name="Enemy" type="CharacterBody2D" groups=["enemy"]]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 21
 motion_mode = 1
 safe_margin = 0.1
 script = ExtResource("1_gejs6")
