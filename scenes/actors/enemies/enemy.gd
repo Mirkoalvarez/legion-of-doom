@@ -51,9 +51,12 @@ func _on_body_entered(body: Node) -> void:
 # ---- HURTBOX - RECIBE DAÑO ---------
 func take_damage(dmg: int, knockback: float = 0.0, from_pos: Vector2 = Vector2.ZERO) -> void:
 	hp -= dmg
-	# Knockback simple (opcional)
+		# Knockback simple (opcional)
 	if from_pos != Vector2.ZERO and knockback > 0.0:
 		var dir := (global_position - from_pos).normalized()
 		velocity += dir * knockback * (1.0 - clamp(knockback_resistance, 0.0, 1.0))
 	if hp <= 0:
 		queue_free()
+
+func _on_hurtbox_hurt(amount: int) -> void:
+	take_damage(amount)

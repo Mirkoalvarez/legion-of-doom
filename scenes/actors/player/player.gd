@@ -28,7 +28,8 @@ signal hp_changed(current: int, max_value: int)
 signal died
 
 # --- ESTADO INTERNO ---
-var _input_dir := Vector2.RIGHT 
+var _input_dir := Vector2.RIGHT
+var _facing_dir := Vector2.RIGHT
 var _invulnerable := false
 var enemy_close: Array[Node2D] = []
 
@@ -63,20 +64,28 @@ func _ready() -> void:
 			hb.area_entered.connect(_on_hurtbox_area_entered)
 
 	# Magnet: Area2D grande para atraer/recoger pickups
-	if has_node("Magnet"):
-		var mg := get_node("Magnet")
-		if mg.has_signal("area_entered"):
-			mg.area_entered.connect(_on_magnet_area_entered)
+		# Magnet: Area2D grande para atraer/recoger pickups
+		if has_node("Magnet"):
+			var mg := get_node("Magnet")
+			if mg.has_signal("area_entered"):
+				mg.area_entered.connect(_on_magnet_area_entered)
+
+		# EnemyDetector: mantiene lista de enemigos cercanos
+			if enemy_detector:
+				enemy_detector.body_entered.connect(_on_enemy_detection_area_body_entered)
+				enemy_detector.body_exited.connect(_on_enemy_detection_area_body_exited)
 
 func _process(_dt: float) -> void:
 	# Leer input en _process (más reactivo), mover en _physics_process
-	_input_dir = Vector2(
-		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
-		Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
-	).normalized()
-	_update_animation()
-	if Input.is_action_just_pressed("shoot"):
-		_shoot()
+		_input_dir = Vector2(
+				Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
+				Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
+		).normalized()
+		if _input_dir != Vector2.ZERO:
+				_facing_dir = _input_dir
+		_update_animation()
+		if Input.is_action_just_pressed("shoot"):
+				_shoot()
 
 
 func _physics_process(dt: float) -> void:
@@ -134,10 +143,10 @@ func _shoot() -> void:
 
 	var target = enemy_detector.get_target()
 	if target:
-		bullet.target = target
-		bullet.direction = (target.global_position - global_position).normalized()
+			bullet.target = target
+			bullet.direction = (target.global_position - global_position).normalized()
 	else:
-		bullet.direction = _input_dir if _input_dir != Vector2.ZERO else Vector2.RIGHT
+		bullet.direction = _facing_dir
 
 	get_parent().add_child(bullet)
 
@@ -189,11 +198,14 @@ func _on_hurtbox_body_entered(body: Node) -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	# Si un área de daño enemigo me toca
-	if area.is_in_group("enemy_hitbox"):
-		if area.has_method("get_damage"):
-			take_damage(int(area.get_damage()))
-		else:
-			take_damage(10)
+		if area.is_in_group("enemy_hitbox"):
+			if area.has_method("get_damage"):
+				take_damage(int(area.get_damage()))
+			else:
+				take_damage(10)
+
+func _on_hurtbox_hurt(amount: int) -> void:
+	take_damage(amount)
 
 func _on_magnet_area_entered(area: Area2D) -> void:
 	# Recoger XP/monedas si las pickups usan grupo "pickup"
