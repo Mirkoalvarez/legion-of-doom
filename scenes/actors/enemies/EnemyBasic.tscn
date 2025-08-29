@@ -29,7 +29,7 @@ texture = SubResource("CanvasTexture_71bte")
 wait_time = 0.4
 autostart = true
 
-[node name="Hurtbox" parent="." instance=ExtResource("3_48yj6")]
+[node name="Hurtbox" parent="." groups=["enemy"] instance=ExtResource("3_48yj6")]
 collision_layer = 2
 collision_mask = 2
 

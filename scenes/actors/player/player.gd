@@ -12,6 +12,8 @@ extends CharacterBody2D
 @export var speed: float = 260.0           # velocidad base (px/s)
 @export var acceleration: float = 2000.0   # acelera hacia el input (suave)
 @export var friction: float = 2000.0       # frena cuando no hay input
+@onready var enemy_detector = $EnemyDetector
+@export var projectile_scene: PackedScene
 
 # --- VIDA / DAÑO ---
 @export var max_hp: int = 100
@@ -26,8 +28,9 @@ signal hp_changed(current: int, max_value: int)
 signal died
 
 # --- ESTADO INTERNO ---
-var _input_dir := Vector2.ZERO
+var _input_dir := Vector2.RIGHT 
 var _invulnerable := false
+var enemy_close: Array[Node2D] = []
 
 # Timers internos
 var _i_frames_timer: Timer
@@ -72,6 +75,9 @@ func _process(_dt: float) -> void:
 		Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
 	).normalized()
 	_update_animation()
+	if Input.is_action_just_pressed("shoot"):
+		_shoot()
+
 
 func _physics_process(dt: float) -> void:
 	# Movimiento suave con aceleración/frenado
@@ -89,6 +95,51 @@ func _physics_process(dt: float) -> void:
 			var col := get_slide_collision(i)
 			if col and col.get_collider():
 				print("Colisioné con: ", col.get_collider())
+
+# DISPAROS PROJECTILES
+func get_closest_enemy(from_pos: Vector2) -> Node2D:
+	var best: Node2D = null
+	var best_d := INF
+	for e in enemy_close:
+		if not is_instance_valid(e):
+			continue
+		var d := from_pos.distance_to(e.global_position)
+		if d < best_d:
+			best_d = d
+			best = e
+	return best
+
+func _on_enemy_detection_area_body_entered(body: Node):
+	# Asegurate que tus enemigos estén en el grupo "enemy"
+	if body.is_in_group("enemy") and not enemy_close.has(body):
+		enemy_close.append(body)
+		# Limpia automáticamente si el enemigo desaparece del árbol
+		if not body.is_connected("tree_exited", Callable(self, "_on_enemy_tree_exited")):
+			body.connect("tree_exited", Callable(self, "_on_enemy_tree_exited").bind(body))
+
+func _on_enemy_detection_area_body_exited(body: Node):
+	if enemy_close.has(body):
+		enemy_close.erase(body)
+
+func _on_enemy_tree_exited(body: Node):
+	# Evita referencias colgantes
+	if enemy_close.has(body):
+		enemy_close.erase(body)
+
+func _shoot() -> void:
+	if projectile_scene == null:
+		return
+	var bullet = projectile_scene.instantiate()
+	bullet.global_position = global_position
+
+	var target = enemy_detector.get_target()
+	if target:
+		bullet.target = target
+		bullet.direction = (target.global_position - global_position).normalized()
+	else:
+		bullet.direction = _input_dir if _input_dir != Vector2.ZERO else Vector2.RIGHT
+
+	get_parent().add_child(bullet)
 
 # --- ANIMACIÓN ---
 func _update_animation() -> void:

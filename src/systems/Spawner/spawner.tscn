@@ -7,3 +7,4 @@
 script = ExtResource("1_r7jan")
 enemy_scene = ExtResource("2_wvens")
 spawn_area = Rect2(0, 0, 1920, 1080)
+min_distance = 300.0

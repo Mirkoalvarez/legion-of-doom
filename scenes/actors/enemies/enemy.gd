@@ -9,6 +9,8 @@ extends CharacterBody2D
 @export var speed: float = 90.0
 @export var max_hp: int = 20
 @export var contact_damage: int = 10
+@export var knockback_resistance: float = 0.0  # 0..1
+
 var hp: int
 
 var player: Node2D
@@ -45,3 +47,13 @@ func _on_body_entered(body: Node) -> void:
 		if body.has_method("take_damage"):
 			body.take_damage(contact_damage)
 		can_hit = false  # espera el cooldown del Timer (si existe)
+
+# ---- HURTBOX - RECIBE DAÑO ---------
+func take_damage(dmg: int, knockback: float = 0.0, from_pos: Vector2 = Vector2.ZERO) -> void:
+	hp -= dmg
+	# Knockback simple (opcional)
+	if from_pos != Vector2.ZERO and knockback > 0.0:
+		var dir := (global_position - from_pos).normalized()
+		velocity += dir * knockback * (1.0 - clamp(knockback_resistance, 0.0, 1.0))
+	if hp <= 0:
+		queue_free()
