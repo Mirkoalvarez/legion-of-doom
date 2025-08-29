@@ -119,12 +119,13 @@ func get_closest_enemy(from_pos: Vector2) -> Node2D:
 	return best
 
 func _on_enemy_detection_area_body_entered(body: Node):
-	# Asegurate que tus enemigos estén en el grupo "enemy"
-	if body.is_in_group("enemy") and not enemy_close.has(body):
-		enemy_close.append(body)
-		# Limpia automáticamente si el enemigo desaparece del árbol
-		if not body.is_connected("tree_exited", Callable(self, "_on_enemy_tree_exited")):
-			body.connect("tree_exited", Callable(self, "_on_enemy_tree_exited").bind(body))
+		# Asegurate que tus enemigos estén en el grupo "enemy"
+		if body.is_in_group("enemy") and not enemy_close.has(body):
+				enemy_close.append(body)
+				# Limpia automáticamente si el enemigo desaparece del árbol
+				if not body.is_connected("tree_exited", Callable(self, "_on_enemy_tree_exited")):
+						body.connect("tree_exited", Callable(self, "_on_enemy_tree_exited").bind(body))
+				call_deferred("_shoot")
 
 func _on_enemy_detection_area_body_exited(body: Node):
 	if enemy_close.has(body):

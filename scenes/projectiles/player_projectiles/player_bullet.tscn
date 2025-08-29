@@ -131,19 +131,17 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_jhcsa"]
-radius = 7.0
+radius = 8.0
 
 [node name="PlayerBullet" type="Area2D"]
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("1_sqj33")
-damage = 30
 
 [node name="Sprite2D" type="AnimatedSprite2D" parent="."]
-scale = Vector2(1.2, 1.2)
+scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_j4awt")
 animation = &"fireball"
-frame_progress = 0.149997
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
