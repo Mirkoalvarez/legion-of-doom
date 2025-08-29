@@ -143,9 +143,9 @@ func _shoot() -> void:
 	bullet.global_position = global_position
 
 	var target = enemy_detector.get_target()
-	if target:
-			bullet.target = target
-			bullet.direction = (target.global_position - global_position).normalized()
+	if target and is_instance_valid(target):
+		bullet.target = target
+		bullet.direction = (target.global_position - global_position).normalized()
 	else:
 		bullet.direction = _facing_dir
 

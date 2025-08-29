@@ -12,8 +12,6 @@ signal hit(body: Node)
 func _ready() -> void:
 	monitoring = true
 	monitorable = true
-	body_entered.connect(_on_body_entered)
-	area_entered.connect(_on_area_entered)
 
 
 func _physics_process(_delta: float) -> void:

@@ -60,3 +60,7 @@ func take_damage(dmg: int, knockback: float = 0.0, from_pos: Vector2 = Vector2.Z
 
 func _on_hurtbox_hurt(amount: int) -> void:
 	take_damage(amount)
+
+
+func _on_hit_cd_timeout() -> void:
+	pass # Replace with function body.

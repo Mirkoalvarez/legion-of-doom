@@ -161,5 +161,6 @@ script = ExtResource("5_yg5k4")
 shape = SubResource("CircleShape2D_qdyt2")
 
 [connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]
+[connection signal="body_entered" from="EnemyDetector" to="EnemyDetector" method="_on_body_entered"]
 
 [editable path="Hurtbox"]

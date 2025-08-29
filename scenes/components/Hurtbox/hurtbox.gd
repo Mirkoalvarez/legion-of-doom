@@ -8,8 +8,7 @@ signal hurt(amount: int)
 func _ready() -> void:
 	monitoring = true
 	monitorable = true
-	area_entered.connect(_on_area_entered)
-	body_entered.connect(_on_body_entered)
+
 
 func _on_area_entered(area: Area2D) -> void:
 	var dmg: int = _extract_damage_from_attacker(area)
