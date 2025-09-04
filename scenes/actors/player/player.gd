@@ -1,174 +1,137 @@
 extends CharacterBody2D
-##
-## Player.gd (Godot 4, 2D)
-## - Movimiento con WASD (aceleración/frenado suave)
-## - Vida y daño con invulnerabilidad breve (i-frames)
-## - Animación por dirección con AnimatedSprite2D (front/left/right/back)
-## - Señales para HUD
-## - Hooks para Hurtbox/Magnet si existen
-##
+## Player.gd (Godot 4.4)
+## - Movimiento suave (aceleración/frenado)
+## - i-frames básicos
+## - AnimatedSprite2D con anims: front/left/right/back
+## - Armas: melee_weapon + ranged_weapon (ProjectileWeapon)
+## - EnemyDetector opcional para auto-aim
 
 # --- MOVIMIENTO ---
-@export var speed: float = 260.0           # velocidad base (px/s)
-@export var acceleration: float = 2000.0   # acelera hacia el input (suave)
-@export var friction: float = 2000.0       # frena cuando no hay input
-@onready var enemy_detector = $EnemyDetector
-@export var projectile_scene: PackedScene
+@export var speed: float = 260.0
+@export var acceleration: float = 2000.0
+@export var friction: float = 2000.0
 
 # --- VIDA / DAÑO ---
 @export var max_hp: int = 100
-@export var i_frames_time: float = 0.5     # invulnerabilidad tras recibir daño (segundos)
+@export var i_frames_time: float = 0.5
 var hp: int
+var _invulnerable := false
+var _i_frames_timer: Timer
 
-# --- DEBUG ---
-@export var print_collisions: bool = false # imprime colisiones al chocar
+# --- ARMAS / COMPONENTES (arrastrá los nodos hijos en el inspector) ---
+@export var melee_weapon: Node            # MeleeWeapon.gd
+@export var ranged_weapon: Node           # ProjectileWeapon.gd
+@export var health: Node                  # Health.gd (opcional, si lo usás)
+@export var enemy_detector: Area2D        # opcional (puede ser null)
 
 # --- SEÑALES ---
 signal hp_changed(current: int, max_value: int)
 signal died
 
-# --- ESTADO INTERNO ---
-var _input_dir := Vector2.RIGHT
-var _facing_dir := Vector2.RIGHT
-var _invulnerable := false
+# --- ESTADO ---
+var _input_dir := Vector2.ZERO
+var _aim_dir := Vector2.RIGHT
 var enemy_close: Array[Node2D] = []
 
-# Timers internos
-var _i_frames_timer: Timer
-
-# --- NODOS (ajustá la ruta si tu nodo animado se llama distinto) ---
-@onready var anim: AnimatedSprite2D = $Sprite
+# --- ANIMACIÓN ---
+@onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 
 func _ready() -> void:
-	# Vida
+	# Vida inicial
 	hp = max_hp
 	emit_signal("hp_changed", hp, max_hp)
-
-	# Grupo
 	add_to_group("player")
 
-	# Timer de invulnerabilidad
+	# Timer i-frames
 	_i_frames_timer = Timer.new()
-	_i_frames_timer.wait_time = i_frames_time
 	_i_frames_timer.one_shot = true
+	_i_frames_timer.wait_time = i_frames_time
 	_i_frames_timer.timeout.connect(_on_i_frames_timeout)
 	add_child(_i_frames_timer)
 
-	# Conexiones opcionales si existen nodos hijos (no rompen si no están)
-	# Hurtbox: Area2D para recibir contacto de enemigos
-	if has_node("Hurtbox"):
-		var hb := get_node("Hurtbox")
-		if hb.has_signal("body_entered"):
-			hb.body_entered.connect(_on_hurtbox_body_entered)
-		if hb.has_signal("area_entered"):
-			hb.area_entered.connect(_on_hurtbox_area_entered)
+	# EnemyDetector (opcional)
+	if enemy_detector:
+		if not enemy_detector.body_entered.is_connected(_on_enemy_enter):
+			enemy_detector.body_entered.connect(_on_enemy_enter)
+		if not enemy_detector.body_exited.is_connected(_on_enemy_exit):
+			enemy_detector.body_exited.connect(_on_enemy_exit)
 
-	# Magnet: Area2D grande para atraer/recoger pickups
-		# Magnet: Area2D grande para atraer/recoger pickups
-		if has_node("Magnet"):
-			var mg := get_node("Magnet")
-			if mg.has_signal("area_entered"):
-				mg.area_entered.connect(_on_magnet_area_entered)
-
-		# EnemyDetector: mantiene lista de enemigos cercanos
-			if enemy_detector:
-				enemy_detector.body_entered.connect(_on_enemy_detection_area_body_entered)
-				enemy_detector.body_exited.connect(_on_enemy_detection_area_body_exited)
+	# Hurtbox opcional
+	var hb := get_node_or_null("Hurtbox")
+	if hb:
+		if hb.has_signal("body_entered"): hb.body_entered.connect(_on_hurtbox_body_entered)
+		if hb.has_signal("area_entered"): hb.area_entered.connect(_on_hurtbox_area_entered)
+		if not hb.is_connected("hurt", Callable(self, "_on_hurtbox_hurt")):
+			hb.connect("hurt", Callable(self, "_on_hurtbox_hurt"))
+	
+	# Magnet opcional
+	var mg := get_node_or_null("Magnet")
+	if mg and mg.has_signal("area_entered"):
+		mg.area_entered.connect(_on_magnet_area_entered)
 
 func _process(_dt: float) -> void:
-	# Leer input en _process (más reactivo), mover en _physics_process
-		_input_dir = Vector2(
-				Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
-				Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
-		).normalized()
-		if _input_dir != Vector2.ZERO:
-				_facing_dir = _input_dir
-		_update_animation()
-		if Input.is_action_just_pressed("shoot"):
-				_shoot()
+	# Input direccional (más responsivo)
+	_input_dir = Vector2(
+		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
+		Input.get_action_strength("move_down")  - Input.get_action_strength("move_up")
+	).normalized()
+	if _input_dir != Vector2.ZERO:
+		_aim_dir = _input_dir
 
+	_update_animation()
+
+	# Ataques por input
+	if Input.is_action_just_pressed("attack_melee") and melee_weapon:
+		melee_weapon.try_fire(_aim_dir, self)
+
+	if Input.is_action_pressed("attack_ranged") and ranged_weapon:
+		var dir := _aim_dir
+		var closest := _get_closest_enemy()
+		if closest:
+			dir = (closest.global_position - global_position).normalized()
+		ranged_weapon.try_fire(dir, self)
 
 func _physics_process(dt: float) -> void:
-	# Movimiento suave con aceleración/frenado
+	# Movimiento con aceleración/frenado
 	if _input_dir != Vector2.ZERO:
 		var desired := _input_dir * speed
 		velocity = velocity.move_toward(desired, acceleration * dt)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * dt)
-
 	move_and_slide()
 
-	# Debug de colisiones contra mundo/cuerpos
-	if print_collisions and get_slide_collision_count() > 0:
-		for i in get_slide_collision_count():
-			var col := get_slide_collision(i)
-			if col and col.get_collider():
-				print("Colisioné con: ", col.get_collider())
+# -------------------------
+# ENEMIGOS CERCANOS (opcional)
+# -------------------------
+func _on_enemy_enter(body: Node) -> void:
+	if body.is_in_group("enemy") and body is Node2D and not enemy_close.has(body):
+		enemy_close.append(body)
+		if not body.is_connected("tree_exited", Callable(self, "_on_enemy_tree_exited")):
+			body.connect("tree_exited", Callable(self, "_on_enemy_tree_exited").bind(body))
 
-# DISPAROS PROJECTILES
-func get_closest_enemy(from_pos: Vector2) -> Node2D:
+func _on_enemy_exit(body: Node) -> void:
+	if enemy_close.has(body):
+		enemy_close.erase(body)
+
+func _on_enemy_tree_exited(body: Node) -> void:
+	if enemy_close.has(body):
+		enemy_close.erase(body)
+
+func _get_closest_enemy() -> Node2D:
 	var best: Node2D = null
 	var best_d := INF
 	for e in enemy_close:
 		if not is_instance_valid(e):
 			continue
-		var d := from_pos.distance_to(e.global_position)
+		var d := global_position.distance_to(e.global_position)
 		if d < best_d:
 			best_d = d
 			best = e
 	return best
 
-func _on_enemy_detection_area_body_entered(body: Node):
-		# Asegurate que tus enemigos estén en el grupo "enemy"
-	if body.is_in_group("enemy") and not enemy_close.has(body):
-		enemy_close.append(body)
-			# Limpia automáticamente si el enemigo desaparece del árbol
-		if not body.is_connected("tree_exited", Callable(self, "_on_enemy_tree_exited")):
-				body.connect("tree_exited", Callable(self, "_on_enemy_tree_exited").bind(body))
-		call_deferred("_shoot")
-
-func _on_enemy_detection_area_body_exited(body: Node):
-	if enemy_close.has(body):
-		enemy_close.erase(body)
-
-func _on_enemy_tree_exited(body: Node):
-	# Evita referencias colgantes
-	if enemy_close.has(body):
-		enemy_close.erase(body)
-
-func _shoot() -> void:
-	if projectile_scene == null:
-		return
-	var bullet = projectile_scene.instantiate()
-	bullet.global_position = global_position
-
-	var target = enemy_detector.get_target()
-	if target and is_instance_valid(target):
-		bullet.target = target
-		bullet.direction = (target.global_position - global_position).normalized()
-	else:
-		bullet.direction = _facing_dir
-
-	get_parent().add_child(bullet)
-
-# --- ANIMACIÓN ---
-func _update_animation() -> void:
-	if anim == null:
-		return
-
-	if _input_dir == Vector2.ZERO:
-		anim.stop()
-		anim.frame = 0
-		return
-
-	# Elegimos anim por componente dominante
-	if abs(_input_dir.x) > abs(_input_dir.y):
-		anim.play("right" if _input_dir.x > 0 else "left")
-	else:
-		anim.play("back" if _input_dir.y < 0 else "front")
-
-# --- API PÚBLICA ---
-
+# -------------------------
+# VIDA / DAÑO / I-FRAMES
+# -------------------------
 func heal(amount: int) -> void:
 	if amount <= 0: return
 	hp = clamp(hp + amount, 0, max_hp)
@@ -180,43 +143,13 @@ func take_damage(amount: int) -> void:
 
 	hp = clamp(hp - amount, 0, max_hp)
 	emit_signal("hp_changed", hp, max_hp)
-	print(hp)
-	
-	# activar i-frames
+
 	_invulnerable = true
 	_i_frames_timer.start()
 	_blink_start()
 
 	if hp <= 0:
 		_die()
-
-# --- HANDLERS DE ÁREAS (opcionales) ---
-
-func _on_hurtbox_body_entered(body: Node) -> void:
-	# Si un enemigo (con grupo "enemy") me toca, recibir daño fijo de contacto
-	if body.is_in_group("enemy"):
-		take_damage(10)
-
-func _on_hurtbox_area_entered(area: Area2D) -> void:
-	# Si un área de daño enemigo me toca
-	if area.is_in_group("enemy_hitbox"):
-		if area.has_method("get_damage"):
-			take_damage(int(area.get_damage()))
-		else:
-			take_damage(10)
-
-func _on_hurtbox_hurt(amount: int) -> void:
-	take_damage(amount)
-
-func _on_magnet_area_entered(area: Area2D) -> void:
-	# Recoger XP/monedas si las pickups usan grupo "pickup"
-	if area.is_in_group("pickup"):
-		if area.has_method("collect"):
-			area.collect()
-		else:
-			area.queue_free()
-
-# --- PRIVADO ---
 
 func _on_i_frames_timeout() -> void:
 	_invulnerable = false
@@ -226,8 +159,53 @@ func _die() -> void:
 	emit_signal("died")
 	queue_free()
 
+# -------------------------
+# HURTBOX / MAGNET (opcionales)
+# -------------------------
+func _on_hurtbox_body_entered(body: Node) -> void:
+	if body.is_in_group("enemy"):
+		take_damage(10)
+
+func _on_hurtbox_area_entered(area: Area2D) -> void:
+	if area.is_in_group("enemy_hitbox"):
+		if area.has_method("get_damage"):
+			take_damage(int(area.get_damage()))
+		else:
+			take_damage(10)
+
+func _on_magnet_area_entered(area: Area2D) -> void:
+	if area.is_in_group("pickup"):
+		if area.has_method("collect"):
+			area.collect()
+		else:
+			area.queue_free()
+
+func _on_hurtbox_hurt(amount: int) -> void:
+	# Usa el amount que envía la señal de Hurtbox
+	take_damage(amount)
+
+# -------------------------
+# ANIMACIÓN
+# -------------------------
+func _update_animation() -> void:
+	if anim == null:
+		return
+	if _input_dir == Vector2.ZERO:
+		anim.stop()
+		anim.frame = 0
+		return
+	if abs(_input_dir.x) > abs(_input_dir.y):
+		if _input_dir.x > 0:
+			anim.play("right")
+		else:
+			anim.play("left")
+	else:
+		if _input_dir.y < 0:
+			anim.play("back")
+		else:
+			anim.play("front")
+
 func _blink_start() -> void:
-	# Parpadeo simple del nodo animado durante i-frames
 	if anim:
 		anim.modulate.a = 0.5
 
