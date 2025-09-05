@@ -70,13 +70,22 @@ attack_melee={
 
 [layer_names]
 
-2d_physics/layer_1="Player"
-2d_physics/layer_2="Enemies"
-2d_physics/layer_3="Projectiles_Player"
-2d_physics/layer_4="Pickups"
-2d_physics/layer_5="StaticBody"
+2d_physics/layer_1="WorldStatic"
+2d_physics/layer_2="Player"
+2d_physics/layer_3="Enemy"
+2d_physics/layer_4="PlayerHurtbox"
+2d_physics/layer_5="EnemyHurtbox"
+2d_physics/layer_6="PlayerHitbox"
+2d_physics/layer_7="EnemyHitbox"
+2d_physics/layer_8="PlayerProjectile"
+2d_physics/layer_9="EnemyProjectile"
+2d_physics/layer_10="Pickup"
+2d_physics/layer_11="Trigger"
+2d_physics/layer_12="FX"
 2d_render/canvas_textures/default_texture_filter=1
 
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

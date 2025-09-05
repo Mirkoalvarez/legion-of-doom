@@ -1,33 +1,26 @@
 extends Area2D
-##
-## Hitbox.gd — área que hace daño al cuerpo que entra
-##
 
 @export var damage: int = 10
-@export var one_shot: bool = false   # se destruye tras golpear
-@export var knockback: float = 0.0   # empuje simple si el objetivo es CharacterBody2D
-
+@export var one_shot: bool = false
+@export var knockback: float = 0.0
 signal hit(body: Node)
 
 func _ready() -> void:
 	monitoring = true
 	monitorable = true
-
-
-func _physics_process(_delta: float) -> void:
-	for body in get_overlapping_bodies():
-		_on_body_entered(body)
-	for area in get_overlapping_areas():
-		_on_area_entered(area)
+	if not body_entered.is_connected(_on_body_entered):
+		body_entered.connect(_on_body_entered)
+	if not area_entered.is_connected(_on_area_entered):
+		area_entered.connect(_on_area_entered)
 
 func _apply_damage(target: Node) -> void:
-	if target.has_method("take_damage"):
-		target.take_damage(damage)
-		
-		# Knockback (empuje) opcional
+	if target and target.has_method("take_damage"):
+		target.take_damage(damage, self)
+
+		# Knockback (solo si el objetivo es un CharacterBody2D)
 		if knockback > 0.0 and target is CharacterBody2D:
 			var dir: Vector2 = (target.global_position - global_position).normalized()
-			target.velocity += dir * knockback
+			(target as CharacterBody2D).velocity += dir * knockback
 
 	emit_signal("hit", target)
 
@@ -40,8 +33,13 @@ func _on_body_entered(body: Node) -> void:
 func _on_area_entered(area: Area2D) -> void:
 	if not area.is_in_group("hurtbox"):
 		return
+
 	var target: Node = area
 	var parent: Node = area.get_parent()
 	if not target.has_method("take_damage") and parent and parent.has_method("take_damage"):
 		target = parent
+
 	_apply_damage(target)
+
+func _on_hit(body: Node) -> void:
+	pass # Replace with function body.

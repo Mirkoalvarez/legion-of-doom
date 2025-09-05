@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://bi5fsv8xt7dne" path="res://scenes/actors/enemies/enemy.gd" id="1_gejs6"]
 [ext_resource type="Texture2D" uid="uid://tx6mgme3fphc" path="res://icon.svg" id="2_xt8b6"]
-[ext_resource type="PackedScene" uid="uid://dh20afsdwgovh" path="res://scenes/components/Hurtbox/hurtbox.tscn" id="3_48yj6"]
-[ext_resource type="PackedScene" uid="uid://ck8dp3hrthlcb" path="res://scenes/components/Hitbox/hitbox.tscn" id="4_nmewm"]
+[ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="3_48yj6"]
+[ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="4_nmewm"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_tiqlc"]
 radius = 14.0
@@ -12,8 +12,8 @@ radius = 14.0
 diffuse_texture = ExtResource("2_xt8b6")
 
 [node name="Enemy" type="CharacterBody2D" groups=["enemy"]]
-collision_layer = 2
-collision_mask = 21
+collision_layer = 4
+collision_mask = 33
 motion_mode = 1
 safe_margin = 0.1
 script = ExtResource("1_gejs6")
@@ -29,16 +29,12 @@ texture = SubResource("CanvasTexture_71bte")
 wait_time = 0.4
 autostart = true
 
-[node name="Hurtbox" parent="." groups=["enemy"] instance=ExtResource("3_48yj6")]
-collision_layer = 2
-collision_mask = 5
+[node name="Hurtbox" parent="." groups=["hurtbox"] instance=ExtResource("3_48yj6")]
+collision_layer = 16
+collision_mask = 160
 
 [node name="Hitbox" parent="." instance=ExtResource("4_nmewm")]
-collision_layer = 2
-collision_mask = 1
+collision_layer = 64
+collision_mask = 8
 
 [connection signal="timeout" from="HitCD" to="." method="_on_hit_cd_timeout"]
-[connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]
-
-[editable path="Hurtbox"]
-[editable path="Hitbox"]

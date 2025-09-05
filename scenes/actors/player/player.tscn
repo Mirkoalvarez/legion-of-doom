@@ -2,9 +2,9 @@
 
 [ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/actors/player/player.gd" id="1_8afob"]
 [ext_resource type="Texture2D" uid="uid://cifi5kqtjh2p1" path="res://assets/sprites/player/Male 16-1.png" id="2_l17oj"]
-[ext_resource type="PackedScene" uid="uid://dh20afsdwgovh" path="res://scenes/components/Hurtbox/hurtbox.tscn" id="3_oj104"]
-[ext_resource type="PackedScene" uid="uid://ck8dp3hrthlcb" path="res://scenes/components/Hitbox/hitbox.tscn" id="4_5bhx7"]
+[ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="4_fp13k"]
 [ext_resource type="PackedScene" uid="uid://cy5qxcnsjywjd" path="res://scenes/projectiles/player_projectiles/player_bullet.tscn" id="4_mpktj"]
+[ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="5_5bhx7"]
 [ext_resource type="Script" uid="uid://ybnepyvxx772" path="res://src/components/Health/health.gd" id="5_fp13k"]
 [ext_resource type="Script" uid="uid://bhv74ovqkxovy" path="res://scenes/actors/player/enemy_detector.gd" id="5_yg5k4"]
 [ext_resource type="Script" uid="uid://csj8ocxw38jfb" path="res://src/components/Weapon/MeleeWeapon.gd" id="6_5bhx7"]
@@ -127,19 +127,18 @@ animations = [{
 radius = 402.95
 
 [node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("ranged_weapon", "health", "enemy_detector") groups=["player"]]
-collision_mask = 10
+collision_layer = 2
+collision_mask = 65
 script = ExtResource("1_8afob")
 ranged_weapon = NodePath("ProjectileWeapon")
 health = NodePath("Health")
 enemy_detector = NodePath("EnemyDetector")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-visible = false
 scale = Vector2(2, 2)
 shape = SubResource("CircleShape2D_dovo2")
 
 [node name="Magnet" type="Area2D" parent="."]
-visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Magnet"]
 shape = SubResource("CircleShape2D_gmlin")
@@ -153,22 +152,17 @@ frame_progress = 0.673268
 
 [node name="WeaponController" type="Node" parent="."]
 
-[node name="Hurtbox" parent="." instance=ExtResource("3_oj104")]
-visible = false
-collision_layer = 1
-collision_mask = 2
-
-[node name="Hitbox" parent="." instance=ExtResource("4_5bhx7")]
-collision_layer = 1
-collision_mask = 2
-
 [node name="EnemyDetector" type="Area2D" parent="."]
 collision_layer = 0
-collision_mask = 2
+collision_mask = 4
 script = ExtResource("5_yg5k4")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnemyDetector"]
 shape = SubResource("CircleShape2D_qdyt2")
+
+[node name="Hurtbox" parent="." groups=["hurtbox"] instance=ExtResource("4_fp13k")]
+collision_layer = 8
+collision_mask = 64
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("5_fp13k")
@@ -176,12 +170,13 @@ script = ExtResource("5_fp13k")
 [node name="MeleeWeapon" type="Node" parent="."]
 script = ExtResource("6_5bhx7")
 
+[node name="Hitbox" parent="MeleeWeapon" instance=ExtResource("5_5bhx7")]
+collision_layer = 32
+collision_mask = 16
+
 [node name="ProjectileWeapon" type="Node" parent="."]
 script = ExtResource("7_i174x")
 projectile_scene = ExtResource("4_mpktj")
+speed = 400.0
 
-[connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]
 [connection signal="body_entered" from="EnemyDetector" to="EnemyDetector" method="_on_body_entered"]
-
-[editable path="Hurtbox"]
-[editable path="Hitbox"]
