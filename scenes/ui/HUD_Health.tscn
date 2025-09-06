@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://crokd0evmh54x"]
+
+[ext_resource type="Script" uid="uid://i3pklrkkr53h" path="res://scenes/ui/HUD_Health.gd" id="1_bdo77"]
+
+[node name="HUD_Health" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_bdo77")
+
+[node name="HP" type="Label" parent="."]
+layout_mode = 0
+offset_top = 63.0
+offset_right = 40.0
+offset_bottom = 86.0
+text = "HP:"
+
+[node name="HPBar" type="ProgressBar" parent="."]
+layout_mode = 0
+offset_top = 34.0
+offset_right = 1920.0
+offset_bottom = 61.0
+
+[node name="HPText" type="Label" parent="."]
+layout_mode = 0
+offset_top = 90.0
+offset_right = 73.0
+offset_bottom = 113.0
+text = "cur / max"

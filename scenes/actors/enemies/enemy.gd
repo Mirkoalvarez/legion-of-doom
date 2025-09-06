@@ -6,12 +6,15 @@ extends CharacterBody2D
 @export var xp_orb_scene: PackedScene
 @export var xp_drop: int = 10
 
+signal hp_changed(current: int, max_value: int)
+
 var hp: int
 var player: Node2D
 
 func _ready() -> void:
 	hp = max_hp
 	add_to_group("enemy")
+	emit_signal("hp_changed", hp, max_hp)
 	player = get_tree().get_first_node_in_group("player")
 
 func _physics_process(_dt: float) -> void:
@@ -22,7 +25,8 @@ func _physics_process(_dt: float) -> void:
 
 func take_damage(amount: int, source: Node = null) -> void:
 	hp -= amount
-
+	emit_signal("hp_changed", hp, max_hp)
+	
 	# Knockback opcional (lee 'knockback' desde la FUENTE del daño)
 	if source is Node2D and knockback_resistance < 1.0:
 		var kb: float = 0.0

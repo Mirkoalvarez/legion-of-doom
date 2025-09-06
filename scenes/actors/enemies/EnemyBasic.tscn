@@ -1,10 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://b0wdoh63scv42"]
+[gd_scene load_steps=9 format=3 uid="uid://b0wdoh63scv42"]
 
 [ext_resource type="Script" uid="uid://bi5fsv8xt7dne" path="res://scenes/actors/enemies/enemy.gd" id="1_gejs6"]
 [ext_resource type="PackedScene" uid="uid://t3utpteisoy5" path="res://scenes/pickups/xp_orb.tscn" id="2_nmewm"]
 [ext_resource type="Texture2D" uid="uid://tx6mgme3fphc" path="res://icon.svg" id="2_xt8b6"]
 [ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="3_48yj6"]
 [ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="4_nmewm"]
+[ext_resource type="PackedScene" uid="uid://b2ogoi84ln5fl" path="res://scenes/ui/HealthBar2d.tscn" id="6_o8x1n"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_tiqlc"]
 radius = 14.0
@@ -38,5 +39,8 @@ collision_mask = 160
 [node name="Hitbox" parent="." instance=ExtResource("4_nmewm")]
 collision_layer = 64
 collision_mask = 8
+
+[node name="HealthBar2D" parent="." instance=ExtResource("6_o8x1n")]
+target_path = NodePath("..")
 
 [connection signal="timeout" from="HitCD" to="." method="_on_hit_cd_timeout"]
