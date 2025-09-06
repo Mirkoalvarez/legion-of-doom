@@ -62,7 +62,11 @@ func _process(_dt: float) -> void:
 	_update_animation()
 
 	if Input.is_action_just_pressed("attack_melee") and melee_weapon:
-		melee_weapon.try_fire(_aim_dir, self)
+		var dir: Vector2 = _aim_dir
+		var closest := _get_closest_enemy()
+		if closest:
+			dir = (closest.global_position - global_position).normalized()
+		melee_weapon.try_fire(dir, self)
 
 	if Input.is_action_pressed("attack_ranged") and ranged_weapon:
 		var dir: Vector2 = _aim_dir

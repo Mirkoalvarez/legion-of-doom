@@ -1,30 +1,55 @@
 extends Weapon
 class_name MeleeWeapon
 
-@export var swing_scene: PackedScene
-@export var damage: float = 20.0
-@export var range_px: float = 36.0
-@export var knockback: float = 180.0
+@export var swing_scene: PackedScene        # arrastrá sword_player.tscn (con Hitbox.gd)
+@export var damage: int = 20
+@export var range_px: float = 36
+@export var knockback: float = 180
 @export var swing_lifetime: float = 0.15
 
+# Parámetros del movimiento visual
+@export var arc_degrees: float = 90.0       # amplitud del arco
+@export var lead_fraction: float = 0.15     # “empujón” hacia adelante (0..0.3 aprox)
+
 func _fire(dir: Vector2, owner_node: Node) -> void:
-	if not swing_scene: return
+	if swing_scene == null or owner_node == null or not (owner_node is Node2D):
+		return
+
+	var owner2d := owner_node as Node2D
 	var swing := swing_scene.instantiate()
-	owner_node.get_parent().add_child(swing)
-	swing.global_position = owner_node.global_position + dir.normalized() * range_px
-	swing.rotation = dir.angle()
+	owner2d.add_child(swing)
 
-	# conectamos hit
-	swing.connect("body_entered", Callable(self, "_on_swing_hit").bind(owner_node))
-	# vida corta
-	await get_tree().create_timer(swing_lifetime).timeout
-	if is_instance_valid(swing):
-		swing.queue_free()
+	# posición base delante del player
+	var out: Vector2 = dir.normalized() * range_px
+	(swing as Node2D).global_position = owner2d.global_position + out
+	(swing as Node2D).rotation = dir.angle()
+	if swing is CanvasItem:
+		(swing as CanvasItem).z_index = 20
 
-func _on_swing_hit(body: Node, owner_node: Node) -> void:
-	if body.is_in_group("damageable") and body.has_method("take_damage"):
-		body.take_damage(damage, owner_node)
-		# knockback si el body tiene física
-		if "velocity" in body:
-			var push = (body.global_position - owner_node.global_position).normalized() * knockback
-			body.velocity += push
+	# pasar daño/knockback al hitbox (Enemy lo lee de 'source')
+	if "damage" in swing: swing.set("damage", damage)
+	if "knockback" in swing: swing.set("knockback", knockback)
+
+	# ---------- ANIMACIÓN DEL SWING ----------
+	var half_arc: float = deg_to_rad(arc_degrees) * 0.9
+	var start_rot: float = dir.angle() - half_arc
+	var end_rot: float = dir.angle() + half_arc
+
+	var start_pos: Vector2 = (swing as Node2D).global_position - dir.normalized() * (range_px * lead_fraction)
+	var end_pos: Vector2 = (swing as Node2D).global_position + dir.normalized() * (range_px * lead_fraction)
+
+	(swing as Node2D).global_position = start_pos
+	(swing as Node2D).rotation = start_rot
+
+	var tw := create_tween()
+	tw.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tw.tween_property(swing, "rotation", end_rot, swing_lifetime)
+	tw.parallel().tween_property(swing, "global_position", end_pos, swing_lifetime)
+
+	# ---------- VENTANA ACTIVA / LIFE ----------
+	var t := Timer.new()
+	t.one_shot = true
+	t.wait_time = swing_lifetime
+	t.timeout.connect(swing.queue_free)
+	swing.add_child(t)
+	t.start()
