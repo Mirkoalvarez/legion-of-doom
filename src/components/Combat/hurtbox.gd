@@ -16,5 +16,5 @@ func take_damage(amount: int, source: Node = null) -> void:
 	emit_signal("hurt", amount) # opcional (HUD/SFX)
 
 
-func _on_hurt(amount: int) -> void:
+func _on_hurt(_amount: int) -> void:
 	pass # Replace with function body.

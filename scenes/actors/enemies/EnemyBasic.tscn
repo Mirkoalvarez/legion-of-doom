@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://b0wdoh63scv42"]
+[gd_scene load_steps=8 format=3 uid="uid://b0wdoh63scv42"]
 
 [ext_resource type="Script" uid="uid://bi5fsv8xt7dne" path="res://scenes/actors/enemies/enemy.gd" id="1_gejs6"]
+[ext_resource type="PackedScene" uid="uid://t3utpteisoy5" path="res://scenes/pickups/xp_orb.tscn" id="2_nmewm"]
 [ext_resource type="Texture2D" uid="uid://tx6mgme3fphc" path="res://icon.svg" id="2_xt8b6"]
 [ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="3_48yj6"]
 [ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="4_nmewm"]
@@ -17,6 +18,7 @@ collision_mask = 33
 motion_mode = 1
 safe_margin = 0.1
 script = ExtResource("1_gejs6")
+xp_orb_scene = ExtResource("2_nmewm")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_tiqlc")

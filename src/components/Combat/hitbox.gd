@@ -41,5 +41,5 @@ func _on_area_entered(area: Area2D) -> void:
 
 	_apply_damage(target)
 
-func _on_hit(body: Node) -> void:
+func _on_hit(_body: Node) -> void:
 	pass # Replace with function body.

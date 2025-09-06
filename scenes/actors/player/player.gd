@@ -139,7 +139,7 @@ func _die() -> void:
 	queue_free()
 
 # --- HURTBOX (opcional HUD/SFX) ---
-func _on_hurtbox_hurt(amount: int) -> void:
+func _on_hurtbox_hurt(_amount: int) -> void:
 	# Solo feedback: el daño real ya llega por take_damage() desde hitbox/proyectil
 	pass
 

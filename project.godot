@@ -82,6 +82,7 @@ attack_melee={
 2d_physics/layer_10="Pickup"
 2d_physics/layer_11="Trigger"
 2d_physics/layer_12="FX"
+2d_physics/layer_13="PlayerMagnet"
 2d_render/canvas_textures/default_texture_filter=1
 
 [rendering]

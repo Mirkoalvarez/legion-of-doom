@@ -42,9 +42,18 @@ func take_damage(amount: int, source: Node = null) -> void:
 
 func _die() -> void:
 	if xp_orb_scene != null:
-		var orb: Node2D = xp_orb_scene.instantiate() as Node2D
-		get_parent().add_child(orb)
-		orb.global_position = global_position
-		if orb.has_method("set") and "xp_amount" in orb:
-			orb.set("xp_amount", xp_drop)
+		var pos: Vector2 = global_position
+		call_deferred("_spawn_xp_orb_at", pos)
 	queue_free()
+
+func _spawn_xp_orb_at(pos: Vector2) -> void:
+	if xp_orb_scene == null: 
+		return
+	var orb: Node2D = xp_orb_scene.instantiate() as Node2D
+	var parent: Node = get_parent()
+	if parent == null:
+		return
+	parent.add_child(orb)                  # <- fuera del flush
+	orb.global_position = pos
+	if "xp_amount" in orb:
+		orb.set("xp_amount", xp_drop)

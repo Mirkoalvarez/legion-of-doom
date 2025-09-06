@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://kxwb4fq37i2w"]
+[gd_scene load_steps=9 format=3 uid="uid://kxwb4fq37i2w"]
 
 [ext_resource type="Script" uid="uid://2vp5l2p65rd5" path="res://scenes/main/main.gd" id="1_hyk8p"]
 [ext_resource type="PackedScene" uid="uid://dxi5wj17qwnh0" path="res://scenes/actors/player/player.tscn" id="2_iuonh"]
 [ext_resource type="PackedScene" uid="uid://p4i8brg70eor" path="res://scenes/ui/hud.tscn" id="3_k2fmo"]
+[ext_resource type="PackedScene" uid="uid://c4f5tj7a02ahc" path="res://scenes/ui/hud_xp.tscn" id="4_hujxm"]
 [ext_resource type="PackedScene" uid="uid://b0wdoh63scv42" path="res://scenes/actors/enemies/EnemyBasic.tscn" id="4_l3cfh"]
 [ext_resource type="PackedScene" uid="uid://c3jbdmtbanto0" path="res://scenes/world/world.tscn" id="5_6q06x"]
 [ext_resource type="PackedScene" uid="uid://bve8geqbsctwi" path="res://src/systems/Spawner/spawner.tscn" id="6_ow5a4"]
@@ -16,6 +17,12 @@ script = ExtResource("1_hyk8p")
 [node name="World" parent="." instance=ExtResource("5_6q06x")]
 
 [node name="HUD" parent="." instance=ExtResource("3_k2fmo")]
+visible = false
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HUD_XP" parent="UI" instance=ExtResource("4_hujxm")]
+experience_path = NodePath("../../Player/Experience")
 
 [node name="Wall" type="StaticBody2D" parent="."]
 collision_mask = 0
@@ -26,16 +33,18 @@ position = Vector2(960, 663)
 shape = SubResource("RectangleShape2D_k2fmo")
 debug_color = Color(0, 0.6, 0.701961, 1)
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+position_smoothing_enabled = true
+
 [node name="Player" parent="." instance=ExtResource("2_iuonh")]
 position = Vector2(962, 535)
 slide_on_ceiling = false
-
-[node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(-2, 5)
-position_smoothing_enabled = true
 
 [node name="Spawner" parent="." instance=ExtResource("6_ow5a4")]
 spawn_area = Rect2(300, 300, 1920, 1080)
 
 [node name="Enemy" parent="." instance=ExtResource("4_l3cfh")]
 position = Vector2(600, 400)
+
+[editable path="Player"]

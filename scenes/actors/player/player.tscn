@@ -1,6 +1,7 @@
-[gd_scene load_steps=28 format=3 uid="uid://dxi5wj17qwnh0"]
+[gd_scene load_steps=29 format=3 uid="uid://dxi5wj17qwnh0"]
 
 [ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/actors/player/player.gd" id="1_8afob"]
+[ext_resource type="Script" uid="uid://4vg0eg7sgk3q" path="res://src/components/progression/Magnet.gd" id="2_inh5e"]
 [ext_resource type="Texture2D" uid="uid://cifi5kqtjh2p1" path="res://assets/sprites/player/Male 16-1.png" id="2_l17oj"]
 [ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="4_fp13k"]
 [ext_resource type="PackedScene" uid="uid://cy5qxcnsjywjd" path="res://scenes/projectiles/player_projectiles/player_bullet.tscn" id="4_mpktj"]
@@ -142,6 +143,9 @@ scale = Vector2(2, 2)
 shape = SubResource("CircleShape2D_dovo2")
 
 [node name="Magnet" type="Area2D" parent="."]
+collision_layer = 4096
+collision_mask = 512
+script = ExtResource("2_inh5e")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Magnet"]
 shape = SubResource("CircleShape2D_gmlin")
