@@ -28,6 +28,7 @@ var _aim_dir: Vector2 = Vector2.RIGHT
 var enemy_close: Array[Node2D] = []
 
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
+@onready var experience: Experience = $Experience
 
 func _ready() -> void:
 	hp = max_hp

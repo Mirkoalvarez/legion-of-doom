@@ -3,6 +3,8 @@ extends CharacterBody2D
 @export var speed: float = 90.0
 @export var max_hp: int = 20
 @export var knockback_resistance: float = 0.0  # 0..1
+@export var xp_orb_scene: PackedScene
+@export var xp_drop: int = 10
 
 var hp: int
 var player: Node2D
@@ -36,4 +38,13 @@ func take_damage(amount: int, source: Node = null) -> void:
 			velocity += dir * kb * (1.0 - clamp(knockback_resistance, 0.0, 1.0))
 
 	if hp <= 0:
-		queue_free()
+		_die()
+
+func _die() -> void:
+	if xp_orb_scene != null:
+		var orb: Node2D = xp_orb_scene.instantiate() as Node2D
+		get_parent().add_child(orb)
+		orb.global_position = global_position
+		if orb.has_method("set") and "xp_amount" in orb:
+			orb.set("xp_amount", xp_drop)
+	queue_free()

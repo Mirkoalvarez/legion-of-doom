@@ -15,10 +15,6 @@ script = ExtResource("1_hyk8p")
 
 [node name="World" parent="." instance=ExtResource("5_6q06x")]
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(960, 540)
-position_smoothing_enabled = true
-
 [node name="HUD" parent="." instance=ExtResource("3_k2fmo")]
 
 [node name="Wall" type="StaticBody2D" parent="."]
@@ -33,6 +29,10 @@ debug_color = Color(0, 0.6, 0.701961, 1)
 [node name="Player" parent="." instance=ExtResource("2_iuonh")]
 position = Vector2(962, 535)
 slide_on_ceiling = false
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position = Vector2(-2, 5)
+position_smoothing_enabled = true
 
 [node name="Spawner" parent="." instance=ExtResource("6_ow5a4")]
 spawn_area = Rect2(300, 300, 1920, 1080)

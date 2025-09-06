@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://dxi5wj17qwnh0"]
+[gd_scene load_steps=28 format=3 uid="uid://dxi5wj17qwnh0"]
 
 [ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/actors/player/player.gd" id="1_8afob"]
 [ext_resource type="Texture2D" uid="uid://cifi5kqtjh2p1" path="res://assets/sprites/player/Male 16-1.png" id="2_l17oj"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://csj8ocxw38jfb" path="res://src/components/Weapon/MeleeWeapon.gd" id="6_5bhx7"]
 [ext_resource type="PackedScene" uid="uid://llaa7d4gfcae" path="res://scenes/weapons/sword_player.tscn" id="7_8bj4u"]
 [ext_resource type="Script" uid="uid://v6opn6ah84l7" path="res://src/components/Weapon/ProjectileWeapon.gd" id="7_i174x"]
+[ext_resource type="Script" uid="uid://b8any4y1yf0cs" path="res://src/components/progression/Experience.gd" id="11_8bj4u"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dovo2"]
 radius = 14.0
@@ -152,8 +153,6 @@ sprite_frames = SubResource("SpriteFrames_068wj")
 animation = &"front"
 frame_progress = 0.673268
 
-[node name="WeaponController" type="Node" parent="."]
-
 [node name="EnemyDetector" type="Area2D" parent="."]
 collision_layer = 0
 collision_mask = 4
@@ -181,5 +180,8 @@ collision_mask = 16
 script = ExtResource("7_i174x")
 projectile_scene = ExtResource("4_mpktj")
 speed = 400.0
+
+[node name="Experience" type="Node" parent="."]
+script = ExtResource("11_8bj4u")
 
 [connection signal="body_entered" from="EnemyDetector" to="EnemyDetector" method="_on_body_entered"]

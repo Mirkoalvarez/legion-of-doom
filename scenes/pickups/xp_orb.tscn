@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://t3utpteisoy5"]
+
+[ext_resource type="Script" uid="uid://ugxbveu6jrbk" path="res://src/components/progression/XPOrb.gd" id="1_y4j3s"]
+[ext_resource type="Texture2D" uid="uid://wt0nsiacd3al" path="res://assets/sprites/tilesets/XPorbs/Items/item_99.png" id="2_h8qi6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gis6l"]
+radius = 5.0
+
+[node name="xp_orb" type="Area2D"]
+collision_layer = 512
+collision_mask = 2
+script = ExtResource("1_y4j3s")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_gis6l")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_h8qi6")
