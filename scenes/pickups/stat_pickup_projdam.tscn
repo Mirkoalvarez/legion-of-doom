@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://dl2rsv8nxmmfw"]
+
+[ext_resource type="Texture2D" uid="uid://c6ckbpx5aqbbs" path="res://assets/sprites/tilesets/XPorbs/Items/item_145.png" id="1_ry6tt"]
+[ext_resource type="Script" uid="uid://cgnm2aiqfy1aa" path="res://src/components/pickups/StatPickup.gd" id="1_vh8ny"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vh8ny"]
+radius = 7.0
+
+[node name="stat_pickup_projdam" type="Area2D"]
+collision_layer = 512
+collision_mask = 2
+script = ExtResource("1_vh8ny")
+target_stat = "ranged.damage"
+delta = 5.0
+duration = 5.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_vh8ny")
+
+[node name="Sprite2D" type="Sprite2D" parent="CollisionShape2D"]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("1_ry6tt")

@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://wt0nsiacd3al" path="res://assets/sprites/tilesets/XPorbs/Items/item_99.png" id="2_h8qi6"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_gis6l"]
-radius = 5.0
+radius = 7.0
 
 [node name="xp_orb" type="Area2D"]
 collision_layer = 512
@@ -15,5 +15,5 @@ script = ExtResource("1_y4j3s")
 shape = SubResource("CircleShape2D_gis6l")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.2, 0.2)
+scale = Vector2(0.3, 0.3)
 texture = ExtResource("2_h8qi6")

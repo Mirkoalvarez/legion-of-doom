@@ -1,10 +1,13 @@
-[gd_scene load_steps=21 format=3 uid="uid://b0wdoh63scv42"]
+[gd_scene load_steps=24 format=3 uid="uid://b0wdoh63scv42"]
 
 [ext_resource type="Script" uid="uid://bi5fsv8xt7dne" path="res://scenes/actors/enemies/enemy.gd" id="1_gejs6"]
 [ext_resource type="PackedScene" uid="uid://t3utpteisoy5" path="res://scenes/pickups/xp_orb.tscn" id="2_nmewm"]
 [ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="3_48yj6"]
+[ext_resource type="PackedScene" uid="uid://1ygiac2rub2u" path="res://scenes/pickups/health_pickup.tscn" id="3_lxjcx"]
 [ext_resource type="Texture2D" uid="uid://d4fh2k8gavlhf" path="res://assets/sprites/enemies/all_enemies/Enemy 06-1.png" id="3_o8x1n"]
 [ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="4_nmewm"]
+[ext_resource type="PackedScene" uid="uid://ck22sy3vkkxuf" path="res://scenes/pickups/stat_pickup_speed.tscn" id="4_wndo2"]
+[ext_resource type="PackedScene" uid="uid://dl2rsv8nxmmfw" path="res://scenes/pickups/stat_pickup_projdam.tscn" id="5_2dsxc"]
 [ext_resource type="PackedScene" uid="uid://b2ogoi84ln5fl" path="res://scenes/ui/HealthBar2d.tscn" id="6_o8x1n"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_tiqlc"]
@@ -124,6 +127,9 @@ motion_mode = 1
 safe_margin = 0.1
 script = ExtResource("1_gejs6")
 xp_orb_scene = ExtResource("2_nmewm")
+health_pickup_scene = ExtResource("3_lxjcx")
+speed_pickup_scene = ExtResource("4_wndo2")
+projdam_pickup_scene = ExtResource("5_2dsxc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_tiqlc")
@@ -132,6 +138,7 @@ shape = SubResource("CircleShape2D_tiqlc")
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_plb54")
 animation = &"front"
+frame_progress = 0.420557
 
 [node name="HitCD" type="Timer" parent="."]
 wait_time = 0.4

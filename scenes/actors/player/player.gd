@@ -15,8 +15,8 @@ var _i_frames_timer: Timer
 # --- ARMAS / COMPONENTES ---
 @export var melee_weapon: Node           # MeleeWeapon.gd
 @export var ranged_weapon: Node          # ProjectileWeapon.gd
-@export var health: Node                 # Health.gd (opcional)
-@export var enemy_detector: Area2D       # opcional
+@export var health: Node                 # Health.gd 
+@export var enemy_detector: Area2D       
 
 # --- SEÑALES ---
 signal hp_changed(current: int, max_value: int)

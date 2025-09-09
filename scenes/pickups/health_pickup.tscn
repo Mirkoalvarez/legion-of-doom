@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://1ygiac2rub2u"]
+
+[ext_resource type="Script" uid="uid://be54ma0pgitja" path="res://src/components/pickups/HealthPickup.gd" id="1_miu4l"]
+[ext_resource type="Texture2D" uid="uid://i5eh6edaih1m" path="res://assets/sprites/tilesets/XPorbs/Items/item_132.png" id="1_y7il8"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_miu4l"]
+radius = 7.0
+
+[node name="health_pickup" type="Area2D"]
+collision_layer = 512
+collision_mask = 2
+script = ExtResource("1_miu4l")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_miu4l")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("1_y7il8")

@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://ck22sy3vkkxuf"]
+
+[ext_resource type="Script" uid="uid://cgnm2aiqfy1aa" path="res://src/components/pickups/StatPickup.gd" id="1_ekll1"]
+[ext_resource type="Texture2D" uid="uid://cypksrgked4uo" path="res://assets/sprites/tilesets/XPorbs/Items/item_181.png" id="2_g73r0"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_um6v7"]
+radius = 7.0
+
+[node name="stat_pickup_speed" type="Area2D"]
+collision_layer = 512
+collision_mask = 2
+script = ExtResource("1_ekll1")
+delta = 40.0
+duration = 5.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_um6v7")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("2_g73r0")

@@ -18,6 +18,17 @@ var _i_frames_timer: Timer
 @export var xp_orb_scene: PackedScene
 @export var xp_drop: int = 10
 
+# --- DROPS EXTRA ---
+@export var health_pickup_scene: PackedScene
+@export_range(0.0, 1.0, 0.01) var health_drop_chance: float = 0.2
+
+@export var speed_pickup_scene: PackedScene
+@export_range(0.0, 1.0, 0.01) var speed_drop_chance: float = 0.15
+
+@export var projdam_pickup_scene: PackedScene
+@export_range(0.0, 1.0, 0.01) var projdam_drop_chance: float = 0.15
+
+
 # --- SEÑALES ---
 signal hp_changed(current: int, max_value: int)
 signal died
@@ -83,8 +94,12 @@ func _die() -> void:
 	# Spawnear orbe de XP en diferido para evitar "flushing queries"
 	var pos: Vector2 = global_position
 	call_deferred("_spawn_xp_orb_at", pos)
+	call_deferred("_try_spawn_health_pickup", pos)
+	call_deferred("_try_spawn_speed_pickup", pos)
+	call_deferred("_try_spawn_projdam_pickup", pos)
 	queue_free()
 
+# --- DROPS ---
 func _spawn_xp_orb_at(pos: Vector2) -> void:
 	if xp_orb_scene == null:
 		return
@@ -97,6 +112,29 @@ func _spawn_xp_orb_at(pos: Vector2) -> void:
 	# Pasar cantidad de XP si el orbe expone esa propiedad
 	if "xp_amount" in orb:
 		orb.set("xp_amount", xp_drop)
+
+func _try_spawn_health_pickup(pos: Vector2) -> void:
+	if health_pickup_scene == null: 
+		return
+	# tirada
+	if randf() <= health_drop_chance:
+		var drop: Node2D = health_pickup_scene.instantiate() as Node2D
+		var parent: Node = get_parent()
+		if parent == null: return
+		parent.add_child(drop)
+		drop.global_position = pos
+
+func _try_spawn_speed_pickup(pos: Vector2) -> void:
+	if speed_pickup_scene != null and randf() <= speed_drop_chance:
+		var drop: Node2D = speed_pickup_scene.instantiate() as Node2D
+		get_parent().add_child(drop)
+		drop.global_position = pos
+
+func _try_spawn_projdam_pickup(pos: Vector2) -> void:
+	if projdam_pickup_scene != null and randf() <= projdam_drop_chance:
+		var drop: Node2D = projdam_pickup_scene.instantiate() as Node2D
+		get_parent().add_child(drop)
+		drop.global_position = pos
 
 # --- ANIMACIÓN ---
 func _update_animation() -> void:
