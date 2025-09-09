@@ -50,5 +50,6 @@ spawn_area = Rect2(300, 300, 1920, 1080)
 
 [node name="Enemy" parent="." instance=ExtResource("4_l3cfh")]
 position = Vector2(600, 400)
+xp_orb_scene = null
 
 [editable path="Player"]

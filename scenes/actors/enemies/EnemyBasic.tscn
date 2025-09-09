@@ -1,17 +1,121 @@
-[gd_scene load_steps=9 format=3 uid="uid://b0wdoh63scv42"]
+[gd_scene load_steps=21 format=3 uid="uid://b0wdoh63scv42"]
 
 [ext_resource type="Script" uid="uid://bi5fsv8xt7dne" path="res://scenes/actors/enemies/enemy.gd" id="1_gejs6"]
 [ext_resource type="PackedScene" uid="uid://t3utpteisoy5" path="res://scenes/pickups/xp_orb.tscn" id="2_nmewm"]
-[ext_resource type="Texture2D" uid="uid://tx6mgme3fphc" path="res://icon.svg" id="2_xt8b6"]
 [ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="3_48yj6"]
+[ext_resource type="Texture2D" uid="uid://d4fh2k8gavlhf" path="res://assets/sprites/enemies/all_enemies/Enemy 06-1.png" id="3_o8x1n"]
 [ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="4_nmewm"]
 [ext_resource type="PackedScene" uid="uid://b2ogoi84ln5fl" path="res://scenes/ui/HealthBar2d.tscn" id="6_o8x1n"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_tiqlc"]
 radius = 14.0
 
-[sub_resource type="CanvasTexture" id="CanvasTexture_71bte"]
-diffuse_texture = ExtResource("2_xt8b6")
+[sub_resource type="AtlasTexture" id="AtlasTexture_lxjcx"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(0, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w573l"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(32, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wndo2"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(64, 96, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2dsxc"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w0d74"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wlxdf"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6lies"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pym4b"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vpvvs"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jxcsk"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(0, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g0ddu"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(32, 64, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m4hls"]
+atlas = ExtResource("3_o8x1n")
+region = Rect2(64, 64, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_plb54"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lxjcx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w573l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wndo2")
+}],
+"loop": true,
+"name": &"back",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2dsxc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w0d74")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wlxdf")
+}],
+"loop": true,
+"name": &"front",
+"speed": 7.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6lies")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pym4b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vpvvs")
+}],
+"loop": true,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jxcsk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g0ddu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m4hls")
+}],
+"loop": true,
+"name": &"right",
+"speed": 5.0
+}]
 
 [node name="Enemy" type="CharacterBody2D" groups=["enemy"]]
 collision_layer = 4
@@ -24,9 +128,10 @@ xp_orb_scene = ExtResource("2_nmewm")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_tiqlc")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.2, 0.2)
-texture = SubResource("CanvasTexture_71bte")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(2, 2)
+sprite_frames = SubResource("SpriteFrames_plb54")
+animation = &"front"
 
 [node name="HitCD" type="Timer" parent="."]
 wait_time = 0.4
@@ -41,6 +146,7 @@ collision_layer = 64
 collision_mask = 8
 
 [node name="HealthBar2D" parent="." instance=ExtResource("6_o8x1n")]
+position = Vector2(0, -13)
 target_path = NodePath("..")
 
 [connection signal="timeout" from="HitCD" to="." method="_on_hit_cd_timeout"]
