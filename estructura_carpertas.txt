@@ -31,17 +31,23 @@ res://
 │  │  └─ familiars/            # Naxu, etc.
 │  ├─ components/              # Hitbox.tscn/gd, Hurtbox.tscn/gd
 │  ├─ weapons/                 # escenas de armas (autodisparo, órbitas…)
-│  ├─ projectiles/             # balas, cuchillas, orbes (Area2D/RigidBody2D) player_projectiles/PlayerBullet.tscn
+│  ├─ projectiles/             # cuchillas, orbes (Area2D/RigidBody2D) player_projectiles/PlayerBullet.tscn
 │  ├─ pickups/                 # XP gem, monedas, cofres
 │  ├─ effects/                 # escenas de partículas/animaciones
 │  └─ ui/                      # HUD, menús, carta-levelup, pausa
 ├─ src/                        # scripts reutilizables (sin escena)
 │  ├─ components/              # Projectile.gd ,Health.gd, DamageArea.gd, Knockback.gd…
+│  │  ├─ Combat/
+│  │  ├─ Health/
+│  │  ├─ Projectile/
+│  │  ├─ Weapon/
+│  │  ├─ pickups/
+│  │  └─ progression/
 │  └─ systems/                 # Spawner.tscn, spawner.gd, GameController.gd, AudioManager.gd
 └─ .gitignore
 
 
---------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 
 | Carpeta                         | Contenido                                                      |
 | ------------------------------- | -------------------------------------------------------------- |
