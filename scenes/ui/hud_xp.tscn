@@ -13,6 +13,7 @@ offset_left = 726.0
 offset_top = 50.0
 offset_right = 926.0
 offset_bottom = 90.0
+text = "Level:"
 
 [node name="XPBar" type="ProgressBar" parent="."]
 layout_mode = 0
@@ -25,3 +26,4 @@ offset_left = 980.0
 offset_top = 50.0
 offset_right = 1180.0
 offset_bottom = 90.0
+text = "XP:"

@@ -138,7 +138,8 @@ shape = SubResource("CircleShape2D_tiqlc")
 scale = Vector2(2, 2)
 sprite_frames = SubResource("SpriteFrames_plb54")
 animation = &"front"
-frame_progress = 0.420557
+frame = 2
+frame_progress = 0.58442
 
 [node name="HitCD" type="Timer" parent="."]
 wait_time = 0.4

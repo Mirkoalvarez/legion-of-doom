@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://df3hysrca4kj5"]
+
+[ext_resource type="Script" uid="uid://ddfoa2cpgiajo" path="res://scenes/ui/HUD_Wave.gd" id="1_njlll"]
+[ext_resource type="FontFile" uid="uid://b746rgk2ph78u" path="res://assets/fonts/Bitter/static/Bitter-ExtraBold.ttf" id="2_741ji"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_njlll"]
+font = ExtResource("2_741ji")
+font_size = 64
+font_color = Color(0.529412, 0, 0.823529, 1)
+
+[node name="HUD_Wave" type="CanvasLayer"]
+script = ExtResource("1_njlll")
+
+[node name="WaveLabel" type="Label" parent="."]
+offset_top = 112.0
+offset_right = 126.0
+offset_bottom = 157.0
+label_settings = SubResource("LabelSettings_njlll")

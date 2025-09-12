@@ -13,4 +13,4 @@ texture_repeat = 2
 position = Vector2(961, 543)
 texture = ExtResource("1_dphjl")
 region_enabled = true
-region_rect = Rect2(-35.046, -41.371, 1920, 1080)
+region_rect = Rect2(-35.046, -41.371, 4800, 2700)

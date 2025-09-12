@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://kxwb4fq37i2w"]
+[gd_scene load_steps=15 format=3 uid="uid://kxwb4fq37i2w"]
 
 [ext_resource type="Script" uid="uid://2vp5l2p65rd5" path="res://scenes/main/main.gd" id="1_hyk8p"]
 [ext_resource type="PackedScene" uid="uid://dxi5wj17qwnh0" path="res://scenes/actors/player/player.tscn" id="2_iuonh"]
@@ -6,11 +6,25 @@
 [ext_resource type="PackedScene" uid="uid://c4f5tj7a02ahc" path="res://scenes/ui/hud_xp.tscn" id="4_hujxm"]
 [ext_resource type="PackedScene" uid="uid://b0wdoh63scv42" path="res://scenes/actors/enemies/EnemyBasic.tscn" id="4_l3cfh"]
 [ext_resource type="PackedScene" uid="uid://c3jbdmtbanto0" path="res://scenes/world/world.tscn" id="5_6q06x"]
+[ext_resource type="FontFile" uid="uid://b746rgk2ph78u" path="res://assets/fonts/Bitter/static/Bitter-ExtraBold.ttf" id="5_a8run"]
 [ext_resource type="PackedScene" uid="uid://crokd0evmh54x" path="res://scenes/ui/HUD_Health.tscn" id="5_yyfjg"]
+[ext_resource type="PackedScene" uid="uid://df3hysrca4kj5" path="res://scenes/ui/hud_wave.tscn" id="6_b1x3f"]
 [ext_resource type="PackedScene" uid="uid://bve8geqbsctwi" path="res://src/systems/Spawner/spawner.tscn" id="6_ow5a4"]
 
+[sub_resource type="LabelSettings" id="LabelSettings_ouso4"]
+font = ExtResource("5_a8run")
+font_size = 34
+
+[sub_resource type="LabelSettings" id="LabelSettings_blune"]
+font = ExtResource("5_a8run")
+font_size = 34
+font_color = Color(0.529412, 0, 0.823529, 1)
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k2fmo"]
-size = Vector2(300, 30)
+size = Vector2(14155, 0.108175)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_a8run"]
+size = Vector2(2702, 1.5)
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_hyk8p")
@@ -25,31 +39,106 @@ visible = false
 [node name="HUD_XP" parent="UI" instance=ExtResource("4_hujxm")]
 experience_path = NodePath("../../Player/Experience")
 
+[node name="LevelLabel" parent="UI/HUD_XP" index="0"]
+offset_left = 160.0
+offset_top = 67.0
+offset_right = 360.0
+offset_bottom = 109.0
+label_settings = SubResource("LabelSettings_ouso4")
+
+[node name="XPText" parent="UI/HUD_XP" index="2"]
+offset_left = 328.0
+offset_top = 67.0
+offset_right = 528.0
+offset_bottom = 107.0
+label_settings = SubResource("LabelSettings_blune")
+
 [node name="HUD_Health" parent="UI" instance=ExtResource("5_yyfjg")]
 player_path = NodePath("../../Player")
+
+[node name="HUD_Wave" parent="UI" instance=ExtResource("6_b1x3f")]
+spawner_path = NodePath("../../Spawner")
+
+[node name="WaveLabel" parent="UI/HUD_Wave" index="0"]
+offset_left = 840.0
+offset_top = 90.0
+offset_right = 1046.0
+offset_bottom = 181.0
 
 [node name="Wall" type="StaticBody2D" parent="."]
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Wall"]
+[node name="CollisionHorizontal" type="CollisionShape2D" parent="Wall"]
 modulate = Color(0, 0, 0, 1)
-position = Vector2(960, 663)
+position = Vector2(961, -807)
+scale = Vector2(0.339177, 1.24687)
 shape = SubResource("RectangleShape2D_k2fmo")
 debug_color = Color(0, 0.6, 0.701961, 1)
 
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(960, 540)
-position_smoothing_enabled = true
+[node name="CollisionHorizontal2" type="CollisionShape2D" parent="Wall"]
+modulate = Color(0, 0, 0, 1)
+position = Vector2(961.527, 1892.93)
+scale = Vector2(0.339177, 1.24687)
+shape = SubResource("RectangleShape2D_k2fmo")
+debug_color = Color(0, 0.6, 0.701961, 1)
+
+[node name="CollisionVertical" type="CollisionShape2D" parent="Wall"]
+modulate = Color(0, 0, 0, 1)
+position = Vector2(-1439.25, 543)
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_a8run")
+
+[node name="CollisionVertical2" type="CollisionShape2D" parent="Wall"]
+modulate = Color(0, 0, 0, 1)
+position = Vector2(3361, 545)
+rotation = 1.5708
+shape = SubResource("RectangleShape2D_a8run")
 
 [node name="Player" parent="." instance=ExtResource("2_iuonh")]
 position = Vector2(962, 535)
 slide_on_ceiling = false
 
+[node name="Hitbox" parent="Player/MeleeWeapon" index="0"]
+one_shot = true
+
+[node name="Camera2D" type="Camera2D" parent="Player"]
+position = Vector2(-2, 5)
+position_smoothing_enabled = true
+
 [node name="Spawner" parent="." instance=ExtResource("6_ow5a4")]
+camera_path = NodePath("../Player/Camera2D")
 spawn_area = Rect2(300, 300, 1920, 1080)
+waves = Array[Dictionary]([{
+"count": 1,
+"enemy_scene_idx": 1,
+"spawn_rate": 0.6
+}, {
+"count": 1,
+"enemy_scene_idx": 0,
+"spawn_rate": 0.6
+}, {
+"count": 1,
+"enemy_scene_idx": 1,
+"spawn_rate": 0.5
+}, {
+&"count": 1,
+&"enemy_scene_idxs": [0, 1],
+&"spawn_rate": 0.5
+}, {
+"count": 6,
+"enemy_pool": [{
+"idx": 0,
+"weight": 0.5
+}, {
+"idx": 1,
+"weight": 0.5
+}],
+"spawn_rate": 0.2
+}])
 
 [node name="Enemy" parent="." instance=ExtResource("4_l3cfh")]
 position = Vector2(600, 400)
-xp_orb_scene = null
 
+[editable path="UI/HUD_XP"]
+[editable path="UI/HUD_Wave"]
 [editable path="Player"]
