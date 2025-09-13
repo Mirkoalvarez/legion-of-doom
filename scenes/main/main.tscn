@@ -98,9 +98,6 @@ shape = SubResource("RectangleShape2D_a8run")
 position = Vector2(962, 535)
 slide_on_ceiling = false
 
-[node name="Hitbox" parent="Player/MeleeWeapon" index="0"]
-one_shot = true
-
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(-2, 5)
 position_smoothing_enabled = true
@@ -109,23 +106,23 @@ position_smoothing_enabled = true
 camera_path = NodePath("../Player/Camera2D")
 spawn_area = Rect2(300, 300, 1920, 1080)
 waves = Array[Dictionary]([{
-"count": 1,
+"count": 3,
 "enemy_scene_idx": 1,
-"spawn_rate": 0.6
+"spawn_rate": 0.2
 }, {
-"count": 1,
+"count": 15,
 "enemy_scene_idx": 0,
-"spawn_rate": 0.6
+"spawn_rate": 0.2
 }, {
-"count": 1,
+"count": 10,
 "enemy_scene_idx": 1,
-"spawn_rate": 0.5
+"spawn_rate": 0.2
 }, {
-&"count": 1,
+&"count": 20,
 &"enemy_scene_idxs": [0, 1],
-&"spawn_rate": 0.5
+&"spawn_rate": 0.2
 }, {
-"count": 6,
+"count": 40,
 "enemy_pool": [{
 "idx": 0,
 "weight": 0.5
@@ -133,7 +130,7 @@ waves = Array[Dictionary]([{
 "idx": 1,
 "weight": 0.5
 }],
-"spawn_rate": 0.2
+"spawn_rate": 0.1
 }])
 
 [node name="Enemy" parent="." instance=ExtResource("4_l3cfh")]
@@ -141,4 +138,3 @@ position = Vector2(600, 400)
 
 [editable path="UI/HUD_XP"]
 [editable path="UI/HUD_Wave"]
-[editable path="Player"]

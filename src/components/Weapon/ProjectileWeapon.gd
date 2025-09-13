@@ -24,7 +24,12 @@ func _fire(dir: Vector2, owner_node: Node) -> void:
 		container = owner_2d
 	container.add_child(p)
 
+	# reproducir sonido del Projectile al crearlo
+	var sfx = p.get_node_or_null("SFX_Fire") as AudioStreamPlayer2D
+	if sfx:
+		sfx.play()
+	
+
 	p.global_position = owner_2d.global_position
 	# Tu contrato de projectile.gd: setup(dir, speed, damage, lifetime, instigator, target := null)
 	p.call("setup", dir.normalized(), speed, damage, lifetime, owner_node, null)
-	print("[ProjectileWeapon] spawned projectile at ", p.global_position)

@@ -30,6 +30,17 @@ func _fire(dir: Vector2, owner_node: Node) -> void:
 	if "damage" in swing: swing.set("damage", damage)
 	if "knockback" in swing: swing.set("knockback", knockback)
 
+	#Sonido de SWORD
+	var sfx := get_node_or_null("SFX_Sword") as AudioStreamPlayer2D
+	if sfx:
+		# clonar para permitir solapamiento de sonidos
+		var one_shot := sfx.duplicate() as AudioStreamPlayer2D
+		one_shot.global_position = (owner_node as Node2D).global_position
+		get_parent().add_child(one_shot)
+		one_shot.play()
+		one_shot.finished.connect(one_shot.queue_free)
+
+
 	# ---------- ANIMACIÓN DEL SWING ----------
 	var half_arc: float = deg_to_rad(arc_degrees) * 0.9
 	var start_rot: float = dir.angle() - half_arc
