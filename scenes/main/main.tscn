@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://kxwb4fq37i2w"]
+[gd_scene load_steps=16 format=3 uid="uid://kxwb4fq37i2w"]
 
 [ext_resource type="Script" uid="uid://2vp5l2p65rd5" path="res://scenes/main/main.gd" id="1_hyk8p"]
 [ext_resource type="PackedScene" uid="uid://dxi5wj17qwnh0" path="res://scenes/actors/player/player.tscn" id="2_iuonh"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://crokd0evmh54x" path="res://scenes/ui/HUD_Health.tscn" id="5_yyfjg"]
 [ext_resource type="PackedScene" uid="uid://df3hysrca4kj5" path="res://scenes/ui/hud_wave.tscn" id="6_b1x3f"]
 [ext_resource type="PackedScene" uid="uid://bve8geqbsctwi" path="res://src/systems/Spawner/spawner.tscn" id="6_ow5a4"]
+[ext_resource type="PackedScene" uid="uid://dg28b1so5hyam" path="res://src/systems/arena_bounds.tscn" id="10_ouso4"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_ouso4"]
 font = ExtResource("5_a8run")
@@ -104,7 +105,8 @@ position_smoothing_enabled = true
 
 [node name="Spawner" parent="." instance=ExtResource("6_ow5a4")]
 camera_path = NodePath("../Player/Camera2D")
-spawn_area = Rect2(300, 300, 1920, 1080)
+spawn_area = Rect2(0, 0, 0, 0)
+bounds_path = NodePath("../ArenaBounds")
 waves = Array[Dictionary]([{
 "count": 3,
 "enemy_scene_idx": 1,
@@ -133,8 +135,20 @@ waves = Array[Dictionary]([{
 "spawn_rate": 0.1
 }])
 
+[node name="ArenaBounds" parent="." instance=ExtResource("10_ouso4")]
+top_left_marker = NodePath("TopLeft")
+bottom_right_marker = NodePath("BottomRight")
+
+[node name="TopLeft" parent="ArenaBounds" index="0"]
+position = Vector2(-1438, -806)
+
+[node name="BottomRight" parent="ArenaBounds" index="1"]
+position = Vector2(3360, 1892)
+
 [node name="Enemy" parent="." instance=ExtResource("4_l3cfh")]
 position = Vector2(600, 400)
 
+[editable path="World"]
 [editable path="UI/HUD_XP"]
 [editable path="UI/HUD_Wave"]
+[editable path="ArenaBounds"]

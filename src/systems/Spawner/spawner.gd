@@ -16,6 +16,7 @@ signal all_waves_cleared()
 @export var spawn_margin: float = 96.0           # distancia extra fuera de pantalla
 @export var spawn_area: Rect2                     # fallback si no hay cámara
 @export var min_distance: float = 200.0           # distancia mínima al player (para spawn_area fallback)
+@export var bounds_path: NodePath  # arrastrá el nodo ArenaBounds aquí
 
 # ---- CONTROL ----
 @export var auto_start: bool = true
@@ -119,18 +120,23 @@ func _enemy_alive_count() -> int:
 	return get_tree().get_nodes_in_group("enemy").size()
 
 func _pick_spawn_point() -> Vector2:
-	# Si hay cámara, spawnear fuera de pantalla
-	if _camera != null:
-		return _random_point_around_screen(_camera, spawn_margin)
+	var arena := _get_arena_rect()
 
-	# Fallback: tu lógica original con spawn_area + distancia al player
+	if _camera != null:
+		# punto alrededor de la pantalla…
+		var p: Vector2 = _random_point_around_screen(_camera, spawn_margin)
+		# …pero lo clamp-eamos al interior de la arena (con un margen para no pisar pared)
+		var inner := arena.grow(-32.0) # 32 px de margen interno
+		return _clamp_point_to_rect(p, inner)
+
+	# Fallback: tu lógica original con spawn_area + min_distance
 	var player := get_tree().get_first_node_in_group("player") as Node2D
-	var spawn_pos: Vector2 = Vector2.ZERO
-	var attempts: int = 0
-	var valid: bool = false
+	var spawn_pos := Vector2.ZERO
+	var attempts := 0
+	var valid := false
 	while attempts < 10 and not valid:
-		var x: float = randf_range(spawn_area.position.x, spawn_area.position.x + spawn_area.size.x)
-		var y: float = randf_range(spawn_area.position.y, spawn_area.position.y + spawn_area.size.y)
+		var x := randf_range(spawn_area.position.x, spawn_area.position.x + spawn_area.size.x)
+		var y := randf_range(spawn_area.position.y, spawn_area.position.y + spawn_area.size.y)
 		spawn_pos = Vector2(x, y)
 		if player == null or spawn_pos.distance_to(player.global_position) >= min_distance:
 			valid = true
@@ -219,3 +225,16 @@ func _random_point_around_screen(cam: Camera2D, margin: float) -> Vector2:
 func _on_enemy_died() -> void:
 	# hook opcional
 	pass
+
+func _get_arena_rect() -> Rect2:
+	var ab := get_node_or_null(bounds_path) as Node2D
+	if ab and ab.has_method("get_rect"):
+		return ab.call("get_rect") as Rect2
+	# fallback: usa spawn_area si no hay ArenaBounds
+	return spawn_area
+
+func _clamp_point_to_rect(p: Vector2, r: Rect2) -> Vector2:
+	return Vector2(
+		clamp(p.x, r.position.x, r.position.x + r.size.x),
+		clamp(p.y, r.position.y, r.position.y + r.size.y)
+	)

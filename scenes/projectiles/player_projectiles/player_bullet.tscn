@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://cy5qxcnsjywjd"]
+[gd_scene load_steps=34 format=3 uid="uid://cy5qxcnsjywjd"]
 
 [ext_resource type="Script" uid="uid://dv2dbtq14j3om" path="res://src/components/Projectile/projectile.gd" id="1_sqj33"]
 [ext_resource type="Texture2D" uid="uid://b8w35hyewmgu7" path="res://assets/sprites/player/projetiles_player/2/1.png" id="2_5c7cb"]
@@ -31,7 +31,6 @@
 [ext_resource type="Texture2D" uid="uid://0wtgsk8nlqe4" path="res://assets/sprites/player/projetiles_player/2/28.png" id="29_iluw5"]
 [ext_resource type="Texture2D" uid="uid://di2gv8mhfr8m7" path="res://assets/sprites/player/projetiles_player/2/29.png" id="30_qpsim"]
 [ext_resource type="Texture2D" uid="uid://bei75n1hkapv0" path="res://assets/sprites/player/projetiles_player/2/30.png" id="31_33a4f"]
-[ext_resource type="AudioStream" uid="uid://b2b2r3t82ce0b" path="res://assets/audio/sfx/fireball.mp3" id="32_g2j3g"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_j4awt"]
 animations = [{
@@ -147,6 +146,3 @@ animation = &"fireball"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
 shape = SubResource("CircleShape2D_jhcsa")
-
-[node name="SFX_Fire" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource("32_g2j3g")
