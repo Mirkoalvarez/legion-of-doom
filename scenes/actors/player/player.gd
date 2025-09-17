@@ -5,6 +5,15 @@ extends CharacterBody2D
 @export var acceleration: float = 2000.0
 @export var friction: float = 2000.0
 
+# --- DASH ---
+@export var dash_speed_mult: float = 3.0
+@export var dash_time: float = 0.15
+@export var dash_cooldown: float = 0.45
+@export var dash_gives_iframes: bool = true
+var _dash_time_left: float = 0.0
+var _dash_cd_left: float = 0.0
+var _is_dashing: bool = false
+
 # --- VIDA / DAÑO ---
 @export var max_hp: int = 100
 @export var i_frames_time: float = 0.5
@@ -17,6 +26,10 @@ var _i_frames_timer: Timer
 @export var ranged_weapon: Node          # ProjectileWeapon.gd
 @export var health: Node                 # Health.gd 
 @export var enemy_detector: Area2D       
+
+# - - - UPGRADES - - -
+@export var upgrade_manager: UpgradeManager
+@export var upgrade_picker: UpgradePicker
 
 # --- SEÑALES ---
 signal hp_changed(current: int, max_value: int)
@@ -52,6 +65,10 @@ func _ready() -> void:
 	if hb and not hb.is_connected("hurt", Callable(self, "_on_hurtbox_hurt")):
 		hb.connect("hurt", Callable(self, "_on_hurtbox_hurt"))
 
+	if experience:
+		if not experience.level_up.is_connected(_on_level_up):
+			experience.level_up.connect(_on_level_up)
+
 func _process(_dt: float) -> void:
 	_input_dir = Vector2(
 		Input.get_action_strength("move_right") - Input.get_action_strength("move_left"),
@@ -82,6 +99,24 @@ func _physics_process(dt: float) -> void:
 		velocity = velocity.move_toward(desired, acceleration * dt)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, friction * dt)
+
+	# --- DASH / MOVIMIENTO ---
+	if _dash_cd_left > 0.0:
+		_dash_cd_left = max(0.0, _dash_cd_left - dt)
+	if Input.is_action_just_pressed("dash"):
+		_try_start_dash()
+
+	if _is_dashing:
+		velocity = _input_dir * speed * dash_speed_mult
+		_dash_time_left -= dt
+		if _dash_time_left <= 0.0:
+			_end_dash()
+	else:
+		if _input_dir != Vector2.ZERO:
+			var desired := _input_dir * speed
+			velocity = velocity.move_toward(desired, acceleration * dt)
+		else:
+			velocity = velocity.move_toward(Vector2.ZERO, friction * dt)
 	move_and_slide()
 
 # --- ENEMIGOS CERCANOS ---
@@ -143,6 +178,26 @@ func _on_hurtbox_hurt(_amount: int) -> void:
 	# Solo feedback: el daño real ya llega por take_damage() desde hitbox/proyectil
 	pass
 
+# - - - DASH MOVIMIENTO - - -
+func _try_start_dash() -> void:
+	if _is_dashing or _dash_cd_left > 0.0:
+		return
+	if _input_dir == Vector2.ZERO:
+		return
+	_is_dashing = true
+	_dash_time_left = dash_time
+	_dash_cd_left = dash_cooldown
+	if dash_gives_iframes:
+		_invulnerable = true
+	_blink_start()
+
+func _end_dash() -> void:
+	_is_dashing = false
+	if dash_gives_iframes:
+		_invulnerable = false
+	_blink_stop()
+
+
 # --- ANIMACIÓN ---
 func _update_animation() -> void:
 	if anim == null:
@@ -163,3 +218,16 @@ func _blink_start() -> void:
 func _blink_stop() -> void:
 	if anim:
 		anim.modulate.a = 1.0
+
+# - - - HANDLERS DE UPGRADE - - - 
+func _on_level_up(_lvl: int) -> void:
+	# Mostrar 3 opciones
+	if upgrade_manager and upgrade_picker:
+		var options := upgrade_manager.get_random_options(3)
+		upgrade_picker.show_options(options, upgrade_manager)
+		if not upgrade_picker.is_connected("picked", Callable(self, "_on_upgrade_picked")):
+			upgrade_picker.connect("picked", Callable(self, "_on_upgrade_picked"))
+
+func _on_upgrade_picked(id: String) -> void:
+	if upgrade_manager:
+		upgrade_manager.apply_upgrade(id, self)

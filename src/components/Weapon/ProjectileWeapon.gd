@@ -6,6 +6,7 @@ class_name ProjectileWeapon
 @export var damage: int = 10
 @export var speed: float = 500.0
 @export var lifetime: float = 1.8
+@export var knockback: float = 220.0   # <--- AÑADIR
 
 # referencia al player de audio dentro del ProjectileWeapon (no 2D)
 @export var fire_player_path: NodePath = NodePath("SFX_Fire")  # poné el nombre real del nodo

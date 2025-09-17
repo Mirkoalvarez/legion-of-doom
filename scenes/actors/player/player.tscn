@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://dxi5wj17qwnh0"]
+[gd_scene load_steps=33 format=3 uid="uid://dxi5wj17qwnh0"]
 
 [ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/actors/player/player.gd" id="1_8afob"]
 [ext_resource type="Script" uid="uid://4vg0eg7sgk3q" path="res://src/components/progression/Magnet.gd" id="2_inh5e"]
@@ -14,6 +14,8 @@
 [ext_resource type="AudioStream" uid="uid://dw3qghxx8b0gk" path="res://assets/audio/sfx/sword.mp3" id="10_hcvpp"]
 [ext_resource type="Script" uid="uid://b8any4y1yf0cs" path="res://src/components/progression/Experience.gd" id="11_8bj4u"]
 [ext_resource type="AudioStream" uid="uid://b0jusavdnbomh" path="res://assets/audio/sfx/fireball.wav" id="13_4iwnj"]
+[ext_resource type="PackedScene" uid="uid://544f1bq0dy25" path="res://src/components/upgrades/upgrade_manager.tscn" id="15_xducv"]
+[ext_resource type="PackedScene" uid="uid://c3588n26qtjwx" path="res://scenes/ui/UpgradePicker.tscn" id="16_yab6n"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dovo2"]
 radius = 14.0
@@ -131,7 +133,7 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_qdyt2"]
 radius = 402.95
 
-[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("melee_weapon", "ranged_weapon", "health", "enemy_detector") groups=["player"]]
+[node name="Player" type="CharacterBody2D" node_paths=PackedStringArray("melee_weapon", "ranged_weapon", "health", "enemy_detector", "upgrade_manager", "upgrade_picker") groups=["player"]]
 collision_layer = 2
 collision_mask = 65
 script = ExtResource("1_8afob")
@@ -140,6 +142,8 @@ melee_weapon = NodePath("MeleeWeapon")
 ranged_weapon = NodePath("ProjectileWeapon")
 health = NodePath("Health")
 enemy_detector = NodePath("EnemyDetector")
+upgrade_manager = NodePath("UpgradeManager")
+upgrade_picker = NodePath("UpgradePicker")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 scale = Vector2(2, 2)
@@ -178,10 +182,12 @@ script = ExtResource("5_fp13k")
 [node name="MeleeWeapon" type="Node" parent="."]
 script = ExtResource("6_5bhx7")
 swing_scene = ExtResource("7_8bj4u")
+knockback = 120.0
 
 [node name="Hitbox" parent="MeleeWeapon" instance=ExtResource("5_5bhx7")]
 collision_layer = 32
 collision_mask = 16
+one_shot = true
 
 [node name="SFX_Sword" type="AudioStreamPlayer2D" parent="MeleeWeapon"]
 stream = ExtResource("10_hcvpp")
@@ -192,6 +198,7 @@ attenuation = 0.01
 script = ExtResource("7_i174x")
 projectile_scene = ExtResource("4_mpktj")
 speed = 400.0
+knockback = 0.0
 fire_volume_db = -24.0
 
 [node name="SFX_Fire" type="AudioStreamPlayer" parent="ProjectileWeapon"]
@@ -199,5 +206,9 @@ stream = ExtResource("13_4iwnj")
 
 [node name="Experience" type="Node" parent="."]
 script = ExtResource("11_8bj4u")
+
+[node name="UpgradeManager" parent="." instance=ExtResource("15_xducv")]
+
+[node name="UpgradePicker" parent="." instance=ExtResource("16_yab6n")]
 
 [connection signal="body_entered" from="EnemyDetector" to="EnemyDetector" method="_on_body_entered"]

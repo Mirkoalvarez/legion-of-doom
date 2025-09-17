@@ -126,6 +126,7 @@ collision_mask = 33
 motion_mode = 1
 safe_margin = 0.1
 script = ExtResource("1_gejs6")
+separation_radius = 20.0
 xp_orb_scene = ExtResource("2_nmewm")
 health_pickup_scene = ExtResource("3_lxjcx")
 speed_pickup_scene = ExtResource("4_wndo2")

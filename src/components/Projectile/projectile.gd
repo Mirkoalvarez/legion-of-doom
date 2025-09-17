@@ -5,7 +5,7 @@ class_name Projectile
 @export var damage: int = 10
 @export var lifetime: float = 1.8
 @export_range(0.0, 1.0, 0.01) var homing_strength: float = 0.0
-@export var knockback: float = 0.0  # <-- NUEVO: el Enemy lo leerá de acá
+@export var knockback: float = 220.0
 
 var direction: Vector2 = Vector2.RIGHT
 var target: Node2D = null
