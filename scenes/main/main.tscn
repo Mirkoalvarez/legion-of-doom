@@ -109,7 +109,7 @@ spawn_area = Rect2(0, 0, 0, 0)
 bounds_path = NodePath("../ArenaBounds")
 waves = Array[Dictionary]([{
 "count": 3,
-"enemy_scene_idx": 1,
+"enemy_scene_idx": 0,
 "spawn_rate": 0.2
 }, {
 "count": 15,

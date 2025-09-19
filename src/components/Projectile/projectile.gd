@@ -26,6 +26,9 @@ func setup(dir: Vector2, new_speed: float, new_damage: int, new_lifetime: float,
 	visible = true
 	set_physics_process(true)
 
+	if anim:
+		anim.rotation = direction.angle()
+
 func _ready() -> void:
 	monitoring = true
 	monitorable = true
