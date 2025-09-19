@@ -197,7 +197,6 @@ func _end_dash() -> void:
 		_invulnerable = false
 	_blink_stop()
 
-
 # --- ANIMACIÓN ---
 func _update_animation() -> void:
 	if anim == null:

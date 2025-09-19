@@ -6,11 +6,11 @@ class_name ProjectileWeapon
 @export var damage: int = 10
 @export var speed: float = 500.0
 @export var lifetime: float = 1.8
-@export var knockback: float = 220.0   # <--- AÑADIR
+@export var knockback: float = 220.0 
 
 # referencia al player de audio dentro del ProjectileWeapon (no 2D)
-@export var fire_player_path: NodePath = NodePath("SFX_Fire")  # poné el nombre real del nodo
-@export var fire_volume_db: float = 0.0                        # ajustá si queda bajo
+@export var fire_player_path: NodePath = NodePath("SFX_Fire")
+@export var fire_volume_db: float = 0.0
 
 func _fire(dir: Vector2, owner_node: Node) -> void:
 	if projectile_scene == null or owner_node == null:

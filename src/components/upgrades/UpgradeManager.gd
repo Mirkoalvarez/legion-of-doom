@@ -131,4 +131,10 @@ func apply_upgrade(id: String, player: Node) -> void:
 				var flag_aoe: bool = bool(any_val)
 				player.set_meta("melee_aoe", flag_aoe)
 
+	# al final del match de efectos, fuera del for:
+	if id == "magic_nova":
+		player.set_meta("has_magic_nova", true)
+	elif id == "melee_charge":
+		player.set_meta("has_melee_charge", true)
+
 	emit_signal("upgrade_picked", id)
