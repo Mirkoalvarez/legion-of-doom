@@ -1,11 +1,10 @@
-[gd_scene load_steps=33 format=3 uid="uid://dxi5wj17qwnh0"]
+[gd_scene load_steps=32 format=3 uid="uid://dxi5wj17qwnh0"]
 
 [ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/actors/player/player.gd" id="1_8afob"]
 [ext_resource type="Script" uid="uid://4vg0eg7sgk3q" path="res://src/components/progression/Magnet.gd" id="2_inh5e"]
 [ext_resource type="Texture2D" uid="uid://cifi5kqtjh2p1" path="res://assets/sprites/player/Male 16-1.png" id="2_l17oj"]
 [ext_resource type="PackedScene" uid="uid://bvoxyg15uamgk" path="res://src/components/Combat/hurtbox.tscn" id="4_fp13k"]
 [ext_resource type="PackedScene" uid="uid://cy5qxcnsjywjd" path="res://scenes/projectiles/player_projectiles/player_bullet.tscn" id="4_mpktj"]
-[ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="5_5bhx7"]
 [ext_resource type="Script" uid="uid://ybnepyvxx772" path="res://src/components/Health/health.gd" id="5_fp13k"]
 [ext_resource type="Script" uid="uid://bhv74ovqkxovy" path="res://scenes/actors/player/enemy_detector.gd" id="5_yg5k4"]
 [ext_resource type="Script" uid="uid://csj8ocxw38jfb" path="res://src/components/Weapon/MeleeWeapon.gd" id="6_5bhx7"]
@@ -183,11 +182,6 @@ script = ExtResource("5_fp13k")
 script = ExtResource("6_5bhx7")
 swing_scene = ExtResource("7_8bj4u")
 knockback = 120.0
-
-[node name="Hitbox" parent="MeleeWeapon" instance=ExtResource("5_5bhx7")]
-collision_layer = 32
-collision_mask = 16
-one_shot = true
 
 [node name="SFX_Sword" type="AudioStreamPlayer2D" parent="MeleeWeapon"]
 stream = ExtResource("10_hcvpp")
