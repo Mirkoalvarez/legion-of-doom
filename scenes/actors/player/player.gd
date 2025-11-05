@@ -226,7 +226,15 @@ func _on_level_up(_lvl: int) -> void:
 		upgrade_picker.show_options(options, upgrade_manager)
 		if not upgrade_picker.is_connected("picked", Callable(self, "_on_upgrade_picked")):
 			upgrade_picker.connect("picked", Callable(self, "_on_upgrade_picked"))
+		# --- PAUSAR JUEGO mientras el picker está visible ---
+		if not get_tree().paused:
+			get_tree().paused = true
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)  # UX: cursor visible
 
 func _on_upgrade_picked(id: String) -> void:
 	if upgrade_manager:
 		upgrade_manager.apply_upgrade(id, self)
+		
+	# --- DESPAUSAR ---
+	if get_tree().paused:
+		get_tree().paused = false
