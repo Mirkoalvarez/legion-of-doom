@@ -170,6 +170,8 @@ func _on_i_frames_timeout() -> void:
 	_blink_stop()
 
 func _die() -> void:
+	(%LoseScreen if has_node("%LoseScreen") else get_node("/root/Main/UI/LoseScreen")).visible = true
+	get_tree().paused = true
 	emit_signal("died")
 	queue_free()
 
@@ -220,16 +222,28 @@ func _blink_stop() -> void:
 
 # - - - HANDLERS DE UPGRADE - - - 
 func _on_level_up(_lvl: int) -> void:
-	# Mostrar 3 opciones
-	if upgrade_manager and upgrade_picker:
-		var options := upgrade_manager.get_random_options(3)
-		upgrade_picker.show_options(options, upgrade_manager)
-		if not upgrade_picker.is_connected("picked", Callable(self, "_on_upgrade_picked")):
-			upgrade_picker.connect("picked", Callable(self, "_on_upgrade_picked"))
-		# --- PAUSAR JUEGO mientras el picker está visible ---
-		if not get_tree().paused:
-			get_tree().paused = true
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)  # UX: cursor visible
+	if not upgrade_manager or not upgrade_picker:
+		return
+
+	# 1) Pedir hasta 3 IDs y filtrar inválidos
+	var ids: Array[String] = upgrade_manager.get_random_options(3)
+	ids = ids.filter(func(id):
+		return id != "" and upgrade_manager.db.has(id)
+	)
+
+	# 2) Si no hay opciones, NO mostrar ni pausar
+	if ids.is_empty():
+		return
+
+	# 3) Mostrar picker y conectar señal (una sola vez)
+	upgrade_picker.show_options(ids, upgrade_manager)
+	if not upgrade_picker.is_connected("picked", Callable(self, "_on_upgrade_picked")):
+		upgrade_picker.picked.connect(_on_upgrade_picked)
+
+	# 4) Pausar una vez
+	if not get_tree().paused:
+		get_tree().paused = true
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 func _on_upgrade_picked(id: String) -> void:
 	if upgrade_manager:
@@ -238,3 +252,4 @@ func _on_upgrade_picked(id: String) -> void:
 	# --- DESPAUSAR ---
 	if get_tree().paused:
 		get_tree().paused = false
+		
