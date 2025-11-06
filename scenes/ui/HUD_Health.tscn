@@ -1,6 +1,9 @@
-[gd_scene load_steps=2 format=3 uid="uid://crokd0evmh54x"]
+[gd_scene load_steps=3 format=3 uid="uid://crokd0evmh54x"]
 
 [ext_resource type="Script" uid="uid://i3pklrkkr53h" path="res://scenes/ui/HUD_Health.gd" id="1_bdo77"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bdo77"]
+bg_color = Color(1, 0, 0, 0.501961)
 
 [node name="HUD_Health" type="Control"]
 layout_mode = 3
@@ -19,6 +22,7 @@ layout_mode = 0
 offset_top = 34.0
 offset_right = 1920.0
 offset_bottom = 61.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_bdo77")
 
 [node name="HPText" type="Label" parent="."]
 layout_mode = 0
