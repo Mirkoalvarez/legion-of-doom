@@ -10,6 +10,7 @@ func _ready() -> void:
 	quit_button.pressed.connect(_on_quit_pressed)
 	# Opcional: mostrar el mouse
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	play_button.grab_focus()
 
 func _on_play_pressed() -> void:
 	get_tree().change_scene_to_file(MAIN_SCENE_PATH)

@@ -67,10 +67,14 @@ player_path = NodePath("../../Player")
 spawner_path = NodePath("../../Spawner")
 
 [node name="WaveLabel" parent="UI/HUD_Wave" index="0"]
-offset_left = 840.0
-offset_top = 90.0
-offset_right = 1046.0
-offset_bottom = 181.0
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -103.0
+offset_top = 131.0
+offset_right = 103.0
+offset_bottom = 222.0
+grow_horizontal = 2
 
 [node name="Wall" type="StaticBody2D" parent="."]
 collision_mask = 0
@@ -110,6 +114,7 @@ position = Vector2(-2, 5)
 position_smoothing_enabled = true
 
 [node name="Spawner" parent="." instance=ExtResource("6_ow5a4")]
+unique_name_in_owner = true
 camera_path = NodePath("../Player/Camera2D")
 spawn_area = Rect2(0, 0, 0, 0)
 bounds_path = NodePath("../ArenaBounds")
