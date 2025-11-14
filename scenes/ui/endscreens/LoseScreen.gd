@@ -11,6 +11,7 @@ func _ready() -> void:
 	retry_button.pressed.connect(_on_retry_pressed)
 	menu_button.pressed.connect(_on_menu_pressed)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	retry_button.grab_focus()
 
 func _on_retry_pressed() -> void:
 	get_tree().paused = false

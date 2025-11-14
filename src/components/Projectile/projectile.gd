@@ -30,8 +30,8 @@ func setup(dir: Vector2, new_speed: float, new_damage: int, new_lifetime: float,
 		anim.rotation = direction.angle()
 
 func _ready() -> void:
-	monitoring = true
-	monitorable = true
+	set_deferred("monitoring", true)
+	set_deferred("monitorable", true)
 	if not area_entered.is_connected(_on_area_entered):
 		area_entered.connect(_on_area_entered)
 	if anim:

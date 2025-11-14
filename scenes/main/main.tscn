@@ -37,11 +37,9 @@ script = ExtResource("1_hyk8p")
 
 [node name="LoseScreen" parent="UI" instance=ExtResource("7_blune")]
 unique_name_in_owner = true
-visible = false
 
 [node name="WinScreen" parent="UI" instance=ExtResource("8_th5th")]
 unique_name_in_owner = true
-visible = false
 
 [node name="HUD_XP" parent="UI" instance=ExtResource("4_hujxm")]
 experience_path = NodePath("../../Player/Experience")

@@ -27,6 +27,12 @@ var _i_frames_timer: Timer
 @export var health: Node                 # Health.gd 
 @export var enemy_detector: Area2D       
 
+# --- AUTO ATAQUE RANGO ---
+@export var auto_ranged_on_enemy: bool = true
+@export var auto_ranged_use_timer: bool = true
+@export var auto_ranged_rate_mult: float = 1.0  # 1.0 = igual al cooldown del arma
+
+
 # - - - UPGRADES - - -
 @export var upgrade_manager: UpgradeManager
 @export var upgrade_picker: UpgradePicker
@@ -42,6 +48,7 @@ var enemy_close: Array[Node2D] = []
 
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 @onready var experience: Experience = $Experience
+@onready var auto_shoot_timer: Timer = Timer.new()
 
 func _ready() -> void:
 	hp = max_hp
@@ -60,6 +67,7 @@ func _ready() -> void:
 		if not enemy_detector.body_exited.is_connected(_on_enemy_exit):
 			enemy_detector.body_exited.connect(_on_enemy_exit)
 
+
 	# Hurtbox opcional: solo para HUD/SFX
 	var hb := get_node_or_null("Hurtbox")
 	if hb and not hb.is_connected("hurt", Callable(self, "_on_hurtbox_hurt")):
@@ -68,6 +76,18 @@ func _ready() -> void:
 	if experience:
 		if not experience.level_up.is_connected(_on_level_up):
 			experience.level_up.connect(_on_level_up)
+			
+	# --- TIMER para auto-disparo (opcional, más prolijo que spamear try_fire en _process)
+	if auto_ranged_use_timer:
+		auto_shoot_timer.one_shot = false
+		var base_rate := 0.2
+		if ranged_weapon and ranged_weapon is Weapon:
+			base_rate = (ranged_weapon as Weapon).cooldown
+		auto_shoot_timer.wait_time = max(0.05, base_rate * auto_ranged_rate_mult)
+		add_child(auto_shoot_timer)
+		if not auto_shoot_timer.timeout.is_connected(_on_auto_shoot_tick):
+			auto_shoot_timer.timeout.connect(_on_auto_shoot_tick)
+
 
 func _process(_dt: float) -> void:
 	_input_dir = Vector2(
@@ -125,14 +145,27 @@ func _on_enemy_enter(body: Node) -> void:
 		enemy_close.append(body)
 		if not body.is_connected("tree_exited", Callable(self, "_on_enemy_tree_exited")):
 			body.connect("tree_exited", Callable(self, "_on_enemy_tree_exited").bind(body))
+		# Disparo inmediato al detectar
+		if auto_ranged_on_enemy:
+			call_deferred("_auto_try_ranged")
+			if auto_ranged_use_timer and not auto_shoot_timer.is_stopped():
+				# nada: ya viene corriendo
+				pass
+			elif auto_ranged_use_timer:
+				auto_shoot_timer.start()
 
 func _on_enemy_exit(body: Node) -> void:
 	if enemy_close.has(body):
 		enemy_close.erase(body)
+	# Si no queda ninguno, apago timer
+	if auto_ranged_use_timer and enemy_close.is_empty():
+		auto_shoot_timer.stop()
 
 func _on_enemy_tree_exited(body: Node) -> void:
 	if enemy_close.has(body):
 		enemy_close.erase(body)
+	if auto_ranged_use_timer and enemy_close.is_empty():
+		auto_shoot_timer.stop()
 
 func _get_closest_enemy() -> Node2D:
 	var best: Node2D = null
@@ -170,7 +203,8 @@ func _on_i_frames_timeout() -> void:
 	_blink_stop()
 
 func _die() -> void:
-	(%LoseScreen if has_node("%LoseScreen") else get_node("/root/Main/UI/LoseScreen")).visible = true
+	var lose := (%LoseScreen if has_node("%LoseScreen") else get_node("/root/Main/UI/LoseScreen"))
+	lose.visible = true
 	get_tree().paused = true
 	emit_signal("died")
 	queue_free()
@@ -179,6 +213,25 @@ func _die() -> void:
 func _on_hurtbox_hurt(_amount: int) -> void:
 	# Solo feedback: el daño real ya llega por take_damage() desde hitbox/proyectil
 	pass
+
+# ----- AUTO ATTACK --------
+func _auto_try_ranged() -> void:
+	if not auto_ranged_on_enemy or ranged_weapon == null:
+		return
+
+	# 1) Usa SIEMPRE el más cercano (misma prioridad que el ataque manual)
+	var target := _get_closest_enemy()
+	if target == null or not is_instance_valid(target):
+		return
+
+	# 2) Dispara hacia ese objetivo
+	var dir := (target.global_position - global_position).normalized()
+	_aim_dir = dir
+	ranged_weapon.try_fire(dir, self) # respeta el cooldown del arma
+
+func _on_auto_shoot_tick() -> void:
+	# Se invoca periódicamente sólo si hay enemigos cerca (encendido/apagado por enter/exit)
+	_auto_try_ranged()
 
 # - - - DASH MOVIMIENTO - - -
 func _try_start_dash() -> void:
