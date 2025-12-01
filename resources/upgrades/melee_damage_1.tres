@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://melee_damage_1"]
+
+[ext_resource type="Script" path="res://src/components/upgrades/UpgradeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "melee_damage_1"
+name = "Filo Afilado"
+desc = "+20% daño melee."
+type = "stat"
+effects = {"melee.damage_mul": 1.2}
+

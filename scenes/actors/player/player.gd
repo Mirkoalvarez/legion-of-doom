@@ -24,13 +24,17 @@ var _i_frames_timer: Timer
 # --- ARMAS / COMPONENTES ---
 @export var melee_weapon: Node           # MeleeWeapon.gd
 @export var ranged_weapon: Node          # ProjectileWeapon.gd
+@export var extra_ranged_weapon_paths: Array[NodePath] = [] # slots adicionales de armas a distancia (beam, etc.)
 @export var health: Node                 # Health.gd 
-@export var enemy_detector: Area2D       
+@export var enemy_detector: Area2D
 
 # --- AUTO ATAQUE RANGO ---
 @export var auto_ranged_on_enemy: bool = true
 @export var auto_ranged_use_timer: bool = true
 @export var auto_ranged_rate_mult: float = 1.0  # 1.0 = igual al cooldown del arma
+# --- AUTO ATAQUE MELEE ---
+@export var auto_melee_on_enemy: bool = true    # intenta pegar melee si esta a rango
+@export var auto_melee_extra_reach: float = 12.0 # colchon para pegar con la punta del arma
 
 
 # - - - UPGRADES - - -
@@ -77,13 +81,10 @@ func _ready() -> void:
 		if not experience.level_up.is_connected(_on_level_up):
 			experience.level_up.connect(_on_level_up)
 			
-	# --- TIMER para auto-disparo (opcional, más prolijo que spamear try_fire en _process)
-	if auto_ranged_use_timer:
+	# --- TIMER para auto-disparo (opcional, mas prolijo que spamear try_fire en _process)
+	if auto_ranged_use_timer or auto_melee_on_enemy:
 		auto_shoot_timer.one_shot = false
-		var base_rate := 0.2
-		if ranged_weapon and ranged_weapon is Weapon:
-			base_rate = (ranged_weapon as Weapon).cooldown
-		auto_shoot_timer.wait_time = max(0.05, base_rate * auto_ranged_rate_mult)
+		auto_shoot_timer.wait_time = _compute_auto_timer_wait()
 		add_child(auto_shoot_timer)
 		if not auto_shoot_timer.timeout.is_connected(_on_auto_shoot_tick):
 			auto_shoot_timer.timeout.connect(_on_auto_shoot_tick)
@@ -106,12 +107,12 @@ func _process(_dt: float) -> void:
 			dir = (closest.global_position - global_position).normalized()
 		melee_weapon.try_fire(dir, self)
 
-	if Input.is_action_pressed("attack_ranged") and ranged_weapon:
+	if Input.is_action_pressed("attack_ranged") and not _get_ranged_weapons().is_empty():
 		var dir: Vector2 = _aim_dir
 		var closest := _get_closest_enemy()
 		if closest:
 			dir = (closest.global_position - global_position).normalized()
-		ranged_weapon.try_fire(dir, self)
+		_fire_ranged(dir, true)
 
 func _physics_process(dt: float) -> void:
 	if _input_dir != Vector2.ZERO:
@@ -146,25 +147,22 @@ func _on_enemy_enter(body: Node) -> void:
 		if not body.is_connected("tree_exited", Callable(self, "_on_enemy_tree_exited")):
 			body.connect("tree_exited", Callable(self, "_on_enemy_tree_exited").bind(body))
 		# Disparo inmediato al detectar
-		if auto_ranged_on_enemy:
-			call_deferred("_auto_try_ranged")
-			if auto_ranged_use_timer and not auto_shoot_timer.is_stopped():
-				# nada: ya viene corriendo
-				pass
-			elif auto_ranged_use_timer:
+		if auto_ranged_on_enemy or auto_melee_on_enemy:
+			call_deferred("_auto_try_attack")
+			if (auto_ranged_use_timer or auto_melee_on_enemy) and auto_shoot_timer.is_stopped():
 				auto_shoot_timer.start()
 
 func _on_enemy_exit(body: Node) -> void:
 	if enemy_close.has(body):
 		enemy_close.erase(body)
 	# Si no queda ninguno, apago timer
-	if auto_ranged_use_timer and enemy_close.is_empty():
+	if (auto_ranged_use_timer or auto_melee_on_enemy) and enemy_close.is_empty():
 		auto_shoot_timer.stop()
 
 func _on_enemy_tree_exited(body: Node) -> void:
 	if enemy_close.has(body):
 		enemy_close.erase(body)
-	if auto_ranged_use_timer and enemy_close.is_empty():
+	if (auto_ranged_use_timer or auto_melee_on_enemy) and enemy_close.is_empty():
 		auto_shoot_timer.stop()
 
 func _get_closest_enemy() -> Node2D:
@@ -215,23 +213,71 @@ func _on_hurtbox_hurt(_amount: int) -> void:
 	pass
 
 # ----- AUTO ATTACK --------
-func _auto_try_ranged() -> void:
-	if not auto_ranged_on_enemy or ranged_weapon == null:
-		return
-
-	# 1) Usa SIEMPRE el más cercano (misma prioridad que el ataque manual)
+func _auto_try_attack() -> void:
+	# 1) Usa SIEMPRE el mas cercano (misma prioridad que el ataque manual)
 	var target := _get_closest_enemy()
 	if target == null or not is_instance_valid(target):
 		return
 
-	# 2) Dispara hacia ese objetivo
 	var dir := (target.global_position - global_position).normalized()
 	_aim_dir = dir
-	ranged_weapon.try_fire(dir, self) # respeta el cooldown del arma
+
+	# 2) Disparo a distancia
+	if auto_ranged_on_enemy:
+		_fire_ranged(dir, false)
+
+	# 3) Ataque melee solo si esta a rango
+	if auto_melee_on_enemy and melee_weapon:
+		var max_range: float = 48.0
+		var prop_val: Variant = melee_weapon.get("range_px")
+		if typeof(prop_val) == TYPE_INT or typeof(prop_val) == TYPE_FLOAT:
+			max_range = float(prop_val)
+		var dist := target.global_position.distance_to(global_position)
+		if dist <= max_range + auto_melee_extra_reach: # colchon para golpear con la punta
+			melee_weapon.try_fire(dir, self)
+	# 2b) Disparo a distancia (todas las armas de rango registradas)
+	if auto_ranged_on_enemy:
+		_fire_ranged(dir, false)
 
 func _on_auto_shoot_tick() -> void:
-	# Se invoca periódicamente sólo si hay enemigos cerca (encendido/apagado por enter/exit)
-	_auto_try_ranged()
+	# Se invoca periodicamente solo si hay enemigos cerca (encendido/apagado por enter/exit)
+	_auto_try_attack()
+
+func _compute_auto_timer_wait() -> float:
+	var rates: Array[float] = []
+	for rw in _get_ranged_weapons():
+		if rw is Weapon:
+			rates.append(max(0.01, (rw as Weapon).cooldown * auto_ranged_rate_mult))
+	if melee_weapon and melee_weapon is Weapon:
+		rates.append(max(0.01, (melee_weapon as Weapon).cooldown))
+	if rates.is_empty():
+		return 0.2
+	var min_rate: float = rates[0]
+	for r in rates:
+		min_rate = min(min_rate, r)
+	return max(0.05, min_rate)
+
+# --- helpers de armas ---
+func _get_ranged_weapons() -> Array[Node]:
+	var out: Array[Node] = []
+	if ranged_weapon:
+		out.append(ranged_weapon)
+	for p in extra_ranged_weapon_paths:
+		if p != NodePath(""):
+			var n := get_node_or_null(p) as Node
+			if n:
+				out.append(n)
+	return out
+
+func _fire_ranged(dir: Vector2, is_manual: bool) -> void:
+	for rw in _get_ranged_weapons():
+		if rw == null:
+			continue
+		# Si el arma declara auto_only, saltar en disparo manual
+		if is_manual and rw.has_method("get") and rw.get("auto_only") == true:
+			continue
+		if rw.has_method("try_fire"):
+			rw.call("try_fire", dir, self)
 
 # - - - DASH MOVIMIENTO - - -
 func _try_start_dash() -> void:
@@ -279,7 +325,7 @@ func _on_level_up(_lvl: int) -> void:
 		return
 
 	# 1) Pedir hasta 3 IDs y filtrar inválidos
-	var ids: Array[String] = upgrade_manager.get_random_options(3)
+	var ids = upgrade_manager.get_random_options(3)
 	ids = ids.filter(func(id):
 		return id != "" and upgrade_manager.db.has(id)
 	)

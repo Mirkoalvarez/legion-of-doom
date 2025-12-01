@@ -1,0 +1,12 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://proj_damage_1"]
+
+[ext_resource type="Script" path="res://src/components/upgrades/UpgradeData.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = "proj_damage_1"
+name = "Munición Pesada"
+desc = "+20% daño de armas a distancia."
+type = "stat"
+effects = {"ranged.damage_mul": 1.2}
+

@@ -1,31 +1,56 @@
 extends Node2D
 class_name Spawner
 
-## Spawner con Oleadas (compatible con tu escena actual)
-## - Si hay Camera2D en camera_path, spawnea FUERA de la pantalla (mejor “entrada a escena”).
-## - Si no hay cámara, usa spawn_area (tu comportamiento actual).
-## - Soporta múltiples tipos de enemigo y límite de simultáneos.
-## - Avanza a la siguiente ola cuando no quedan enemigos del grupo "enemy".
+# Spawner con dos modos:
+# 1) Endless por tiempo (tipo Vampire Survivors): fases por minuto, sin limpiar enemigos previos.
+# 2) Waves legacy (opcional, si quieres el comportamiento anterior).
 
 signal wave_started(index: int)
 signal wave_cleared(index: int)
 signal all_waves_cleared()
 
-# ---- CÁMARA / ÁREA ----
+# ---- CAMARA / AREA ----
 @export var camera_path: NodePath
 @export var spawn_margin: float = 96.0           # distancia extra fuera de pantalla
-@export var spawn_area: Rect2                     # fallback si no hay cámara
-@export var min_distance: float = 200.0           # distancia mínima al player (para spawn_area fallback)
-@export var bounds_path: NodePath  # arrastrá el nodo ArenaBounds aquí
+@export var spawn_area: Rect2 = Rect2(-600, -600, 1200, 1200) # fallback si no hay camara
+@export var min_distance: float = 200.0          # distancia minima al player (para spawn_area fallback)
+@export var bounds_path: NodePath                # arrastra el nodo ArenaBounds aqui
 
 # ---- CONTROL ----
 @export var auto_start: bool = true
 @export var max_concurrent: int = 30
 
 # ---- ENEMIGOS ----
-@export var enemy_scenes: Array[PackedScene] = [] # pool de escenas (índices 0..n)
+@export var enemy_scenes: Array[PackedScene] = [] # pool de escenas (indices 0..n)
 
-# ---- OLEADAS ----
+# ---- MODO ENDLESS (tiempo) ----
+@export var use_endless: bool = true
+# Cada fase empieza en "time" (segundos) y define rate y pool de enemigos
+@export var phases: Array[Dictionary] = [
+	{
+		"time": 0.0,
+		"spawn_rate": 1.0, # segundos entre spawns
+		"max_concurrent": 25,
+		"enemy_pool": [
+			{ "path": "res://scenes/actors/enemies/EnemyBasic.tscn", "weight": 1.0 }
+		],
+		"hp_mult": 1.0,
+		"speed_mult": 1.0
+	},
+	{
+		"time": 60.0,
+		"spawn_rate": 0.7,
+		"max_concurrent": 35,
+		"enemy_pool": [
+			{ "path": "res://scenes/actors/enemies/EnemyBasic.tscn", "weight": 0.6 },
+			{ "path": "res://scenes/actors/enemies/Goblin/goblin.tscn", "weight": 0.4 }
+		],
+		"hp_mult": 1.2,
+		"speed_mult": 1.05
+	}
+]
+
+# ---- OLEADAS LEGACY (opcional) ----
 # Por ola: count (int), spawn_rate (float), enemy_scene_idx (int) o enemy_scene (String ruta opcional)
 @export var waves: Array[Dictionary] = [
 	{ "count": 8,  "spawn_rate": 0.8, "enemy_scene_idx": 0 },
@@ -35,14 +60,122 @@ signal all_waves_cleared()
 
 var _current_wave: int = -1
 var _camera: Camera2D
+var _phase_idx: int = -1
+var _elapsed: float = 0.0
+var _spawn_timer: float = 0.0
+var _current_phase: Dictionary = {}
+var _current_max_concurrent: int = 30
+var _endless_running: bool = false
 
 func _ready() -> void:
-	# randomize()
 	_camera = get_node_or_null(camera_path) as Camera2D
-	if auto_start and waves.size() > 0:
+
+	if not auto_start:
+		set_process(false)
+		return
+
+	if use_endless and phases.size() > 0:
+		start_endless()
+	elif waves.size() > 0:
 		start_waves()
+	else:
+		set_process(false)
+
+# ------------------- ENDLESS -------------------
+
+func start_endless() -> void:
+	_phase_idx = -1
+	_elapsed = 0.0
+	_endless_running = true
+	set_process(true)
+	_advance_phase() # inicial
+
+func _process(dt: float) -> void:
+	if not _endless_running:
+		return
+
+	_elapsed += dt
+
+	# avanzar fase si llega el siguiente umbral de tiempo
+	if _phase_idx + 1 < phases.size():
+		var next_t: float = float(phases[_phase_idx + 1].get("time", 0.0))
+		if _elapsed >= next_t:
+			_advance_phase()
+
+	_spawn_timer -= dt
+	if _spawn_timer <= 0.0:
+		if _enemy_alive_count() < _current_max_concurrent:
+			_spawn_one_from_phase(_current_phase)
+		_spawn_timer = float(_current_phase.get("spawn_rate", 1.0))
+
+func _advance_phase() -> void:
+	_phase_idx += 1
+	if _phase_idx < 0 or _phase_idx >= phases.size():
+		_endless_running = false
+		set_process(false)
+		return
+	_current_phase = phases[_phase_idx]
+	_spawn_timer = 0.0
+	_current_max_concurrent = int(_current_phase.get("max_concurrent", max_concurrent))
+
+func _spawn_one_from_phase(p: Dictionary) -> void:
+	var scene := _pick_enemy_scene_for_phase(p)
+	if scene == null:
+		return
+
+	var pos: Vector2 = _pick_spawn_point()
+	var e: Node2D = scene.instantiate() as Node2D
+	if e == null:
+		return
+
+	get_parent().add_child(e)
+	e.global_position = pos
+	_apply_phase_scaling(e, p)
+
+	if e.has_signal("died") and not e.is_connected("died", Callable(self, "_on_enemy_died")):
+		e.connect("died", Callable(self, "_on_enemy_died"))
+
+func _pick_enemy_scene_for_phase(p: Dictionary) -> PackedScene:
+	if p.has("enemy_pool"):
+		var pool := p["enemy_pool"] as Array
+		if pool.size() > 0:
+			var total := 0.0
+			for e in pool:
+				total += float((e as Dictionary).get("weight", 1.0))
+			var roll := randf() * total
+			for e in pool:
+				var weight := float((e as Dictionary).get("weight", 1.0))
+				roll -= weight
+				if roll <= 0.0:
+					return _scene_from_pool_entry(e)
+			return _scene_from_pool_entry(pool[0])
+
+	# fallback: usa enemy_scenes principal
+	if enemy_scenes.size() > 0:
+		return enemy_scenes[0]
+	return null
+
+func _apply_phase_scaling(e: Node2D, p: Dictionary) -> void:
+	var hp_mul := float(p.get("hp_mult", 1.0))
+	var speed_mul := float(p.get("speed_mult", 1.0))
+
+	if hp_mul != 1.0:
+		var hp_val: Variant = e.get("max_hp")
+		if typeof(hp_val) == TYPE_INT or typeof(hp_val) == TYPE_FLOAT:
+			var new_hp := float(hp_val) * hp_mul
+			e.set("max_hp", new_hp)
+			if "hp" in e:
+				e.set("hp", new_hp)
+
+	if speed_mul != 1.0:
+		var sp_val: Variant = e.get("speed")
+		if typeof(sp_val) == TYPE_INT or typeof(sp_val) == TYPE_FLOAT:
+			e.set("speed", float(sp_val) * speed_mul)
+
+# ------------------- WAVES LEGACY -------------------
 
 func start_waves() -> void:
+	set_process(false)
 	_current_wave = -1
 	_run_next_wave()
 
@@ -64,7 +197,6 @@ func _spawn_wave(count: int, rate: float, w: Dictionary) -> void:
 	await get_tree().process_frame
 
 	while spawned < count:
-		# límite de enemigos simultáneos
 		while _enemy_alive_count() >= max_concurrent:
 			await get_tree().create_timer(0.25).timeout
 
@@ -80,14 +212,12 @@ func _spawn_wave(count: int, rate: float, w: Dictionary) -> void:
 		get_parent().add_child(e)
 		e.global_position = pos
 
-		# conectar señal "died" si existe (no obligatorio)
 		if e.has_signal("died") and not e.is_connected("died", Callable(self, "_on_enemy_died")):
 			e.connect("died", Callable(self, "_on_enemy_died"))
 
 		spawned += 1
 		await get_tree().create_timer(max(0.01, rate)).timeout
 
-	# esperar a que mueran los enemigos de la ola
 	while _enemy_alive_count() > 0:
 		await get_tree().create_timer(0.25).timeout
 
@@ -97,20 +227,17 @@ func _spawn_wave(count: int, rate: float, w: Dictionary) -> void:
 # ---------- helpers ----------
 
 func _resolve_enemy_scene(w: Dictionary) -> PackedScene:
-	# Opción 1: ruta directa en la ola
 	if w.has("enemy_scene"):
 		var path: String = String(w["enemy_scene"])
 		var ps: PackedScene = load(path) as PackedScene
 		if ps != null:
 			return ps
 
-	# Opción 2: índice a enemy_scenes exportado
 	if w.has("enemy_scene_idx"):
 		var idx: int = int(w["enemy_scene_idx"])
 		if idx >= 0 and idx < enemy_scenes.size():
 			return enemy_scenes[idx]
 
-	# fallback: primer elemento
 	if enemy_scenes.size() > 0:
 		return enemy_scenes[0]
 
@@ -123,13 +250,10 @@ func _pick_spawn_point() -> Vector2:
 	var arena := _get_arena_rect()
 
 	if _camera != null:
-		# punto alrededor de la pantalla…
 		var p: Vector2 = _random_point_around_screen(_camera, spawn_margin)
-		# …pero lo clamp-eamos al interior de la arena (con un margen para no pisar pared)
-		var inner := arena.grow(-32.0) # 32 px de margen interno
+		var inner := arena.grow(-32.0) # 32 px margen interno
 		return _clamp_point_to_rect(p, inner)
 
-	# Fallback: tu lógica original con spawn_area + min_distance
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	var spawn_pos := Vector2.ZERO
 	var attempts := 0
@@ -145,7 +269,6 @@ func _pick_spawn_point() -> Vector2:
 	return spawn_pos
 
 func _pick_enemy_scene_for_wave(w: Dictionary) -> PackedScene:
-	# enemy_pool: Array[{idx:int?, path:String?, weight:float?}]
 	if w.has("enemy_pool"):
 		var pool := w["enemy_pool"] as Array
 		if pool.size() > 0:
@@ -158,19 +281,15 @@ func _pick_enemy_scene_for_wave(w: Dictionary) -> PackedScene:
 				roll -= weight
 				if roll <= 0.0:
 					return _scene_from_pool_entry(e)
-			# fallback por si no entró en el bucle
 			return _scene_from_pool_entry(pool[0])
 
-	# enemy_scene_idxs: Array[int] → elección uniforme entre índices
 	if w.has("enemy_scene_idxs"):
 		var idxs := w["enemy_scene_idxs"] as Array
 		if idxs.size() > 0:
 			var pick := int(idxs[randi() % idxs.size()])
 			return _scene_from_idx_or_path(pick, null)
 
-	# Soporte original: idx o path único
 	return _scene_from_idx_or_path(int(w.get("enemy_scene_idx", -1)), w.get("enemy_scene", null))
-
 
 func _scene_from_pool_entry(entry: Dictionary) -> PackedScene:
 	if entry.has("path"):
@@ -181,9 +300,7 @@ func _scene_from_pool_entry(entry: Dictionary) -> PackedScene:
 		var idx := int(entry["idx"])
 		if idx >= 0 and idx < enemy_scenes.size():
 			return enemy_scenes[idx]
-	# fallback general
 	return enemy_scenes[0] if enemy_scenes.size() > 0 else null
-
 
 func _scene_from_idx_or_path(idx: int, path_var: Variant) -> PackedScene:
 	if path_var != null:
@@ -194,8 +311,7 @@ func _scene_from_idx_or_path(idx: int, path_var: Variant) -> PackedScene:
 		return enemy_scenes[idx]
 	return enemy_scenes[0] if enemy_scenes.size() > 0 else null
 
-
-# --- utilidades de cámara ---
+# --- utilidades de camara ---
 func _screen_world_rect(cam: Camera2D) -> Rect2:
 	var vp_size: Vector2 = get_viewport().get_visible_rect().size
 	var half: Vector2 = vp_size * 0.5
@@ -203,7 +319,6 @@ func _screen_world_rect(cam: Camera2D) -> Rect2:
 	if cam == null:
 		return Rect2(-half, vp_size)
 
-	# si hay cámara, recalculamos half con zoom
 	half = half * cam.zoom
 	var top_left: Vector2 = cam.global_position - half
 	return Rect2(top_left, half * 2.0)
@@ -222,6 +337,7 @@ func _random_point_around_screen(cam: Camera2D, margin: float) -> Vector2:
 			return Vector2(r.position.x, randf_range(r.position.y, r.position.y + r.size.y))
 		_:
 			return cam.global_position if cam != null else Vector2.ZERO
+
 func _on_enemy_died() -> void:
 	# hook opcional
 	pass
@@ -230,7 +346,6 @@ func _get_arena_rect() -> Rect2:
 	var ab := get_node_or_null(bounds_path) as Node2D
 	if ab and ab.has_method("get_rect"):
 		return ab.call("get_rect") as Rect2
-	# fallback: usa spawn_area si no hay ArenaBounds
 	return spawn_area
 
 func _clamp_point_to_rect(p: Vector2, r: Rect2) -> Vector2:

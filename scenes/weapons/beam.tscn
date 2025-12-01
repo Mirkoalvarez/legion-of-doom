@@ -1,0 +1,62 @@
+[gd_scene load_steps=9 format=3 uid="uid://csy2hq23pljqe"]
+
+[ext_resource type="Texture2D" uid="uid://1hnrijg6qo2c" path="res://assets/sprites/player/lightning/Sprite-sheet.png" id="1_01nel"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_xjqp8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_41ayg"]
+atlas = ExtResource("1_01nel")
+region = Rect2(0, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6s0jq"]
+atlas = ExtResource("1_01nel")
+region = Rect2(128, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qyx72"]
+atlas = ExtResource("1_01nel")
+region = Rect2(256, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b54wp"]
+atlas = ExtResource("1_01nel")
+region = Rect2(384, 0, 128, 256)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3polc"]
+atlas = ExtResource("1_01nel")
+region = Rect2(512, 0, 128, 256)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_d2vws"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_41ayg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6s0jq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qyx72")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b54wp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3polc")
+}],
+"loop": true,
+"name": &"lightning",
+"speed": 8.0
+}]
+
+[node name="Beam" type="Area2D"]
+collision_layer = 128
+collision_mask = 16
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_xjqp8")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(-1, -107)
+scale = Vector2(0.354492, 0.96875)
+sprite_frames = SubResource("SpriteFrames_d2vws")
+animation = &"lightning"
+frame = 1

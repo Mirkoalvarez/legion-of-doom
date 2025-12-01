@@ -3,7 +3,7 @@ class_name MeleeWeapon
 
 @export var swing_scene: PackedScene        # arrastrá sword_player.tscn (con Hitbox.gd)
 @export var damage: int = 20
-@export var range_px: float = 36
+@export var range_px: float = 64
 @export var knockback: float = 180
 @export var swing_lifetime: float = 0.15
 

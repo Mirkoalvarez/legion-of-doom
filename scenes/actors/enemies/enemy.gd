@@ -36,6 +36,8 @@ var _kb_vel: Vector2 = Vector2.ZERO
 @export var projdam_pickup_scene: PackedScene
 @export_range(0.0, 1.0, 0.01) var projdam_drop_chance: float = 0.15
 
+# --- FEEDBACK ---
+@export var damage_number_scene: PackedScene
 
 # --- SEÑALES ---
 signal hp_changed(current: int, max_value: int)
@@ -117,6 +119,8 @@ func take_damage(amount: int, source: Node = null) -> void:
 		return
 	if _invulnerable:
 		return
+
+	_show_damage_number(amount)
 
 	hp = clamp(hp - amount, 0, max_hp)
 	emit_signal("hp_changed", hp, max_hp)
@@ -224,3 +228,35 @@ func _blink_stop() -> void:
 func _on_hit_cd_timeout() -> void:
 	# Reutilizo la misma lógica de fin de i-frames
 	_on_i_frames_timeout()
+
+func _show_damage_number(amount: int) -> void:
+	if damage_number_scene == null:
+		return
+	var num := damage_number_scene.instantiate()
+	if num == null:
+		return
+	get_parent().add_child(num)
+
+	# Posición inicial un poco arriba
+	if num is Node2D:
+		(num as Node2D).global_position = global_position + Vector2(0, -8)
+
+	# Si el recurso tiene m�todo show_value(val, pos), úsalo
+	if num.has_method("show_value"):
+		num.call("show_value", amount, (num as Node2D).global_position if num is Node2D else global_position)
+		return
+
+	# Fallback: si es Label/RichText, setear texto y hacer tween simple
+	if num is Label or num is RichTextLabel:
+		var lbl := num as CanvasItem
+		if "text" in num:
+			num.set("text", str(amount))
+		# Animación de subir y desvanecer
+		var start_pos := (num as Node2D).global_position if num is Node2D else global_position
+		var tw := num.create_tween()
+		tw.tween_property(num, "global_position", start_pos + Vector2(0, -16), 0.6).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		tw.tween_property(num, "modulate:a", 0.0, 0.6)
+		tw.tween_callback(num.queue_free)
+	else:
+		# Si no sabemos animarlo, liberar para evitar leaks
+		num.queue_free()

@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://b0wdoh63scv42"]
+[gd_scene load_steps=25 format=3 uid="uid://b0wdoh63scv42"]
 
 [ext_resource type="Script" uid="uid://bi5fsv8xt7dne" path="res://scenes/actors/enemies/enemy.gd" id="1_gejs6"]
 [ext_resource type="PackedScene" uid="uid://t3utpteisoy5" path="res://scenes/pickups/xp_orb.tscn" id="2_nmewm"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://ciu8kfed2p5lv" path="res://src/components/Combat/hitbox.tscn" id="4_nmewm"]
 [ext_resource type="PackedScene" uid="uid://ck22sy3vkkxuf" path="res://scenes/pickups/stat_pickup_speed.tscn" id="4_wndo2"]
 [ext_resource type="PackedScene" uid="uid://dl2rsv8nxmmfw" path="res://scenes/pickups/stat_pickup_projdam.tscn" id="5_2dsxc"]
+[ext_resource type="PackedScene" uid="uid://nnlj2lhurk4b" path="res://scenes/ui/DamageNumber.tscn" id="6_2dsxc"]
 [ext_resource type="PackedScene" uid="uid://b2ogoi84ln5fl" path="res://scenes/ui/HealthBar2d.tscn" id="6_o8x1n"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_tiqlc"]
@@ -126,11 +127,13 @@ collision_mask = 33
 motion_mode = 1
 safe_margin = 0.1
 script = ExtResource("1_gejs6")
+max_hp = 55
 separation_radius = 20.0
 xp_orb_scene = ExtResource("2_nmewm")
 health_pickup_scene = ExtResource("3_lxjcx")
 speed_pickup_scene = ExtResource("4_wndo2")
 projdam_pickup_scene = ExtResource("5_2dsxc")
+damage_number_scene = ExtResource("6_2dsxc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_tiqlc")

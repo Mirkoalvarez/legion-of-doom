@@ -116,33 +116,6 @@ unique_name_in_owner = true
 camera_path = NodePath("../Player/Camera2D")
 spawn_area = Rect2(0, 0, 0, 0)
 bounds_path = NodePath("../ArenaBounds")
-waves = Array[Dictionary]([{
-"count": 3,
-"enemy_scene_idx": 0,
-"spawn_rate": 0.2
-}, {
-"count": 15,
-"enemy_scene_idx": 0,
-"spawn_rate": 0.2
-}, {
-"count": 10,
-"enemy_scene_idx": 1,
-"spawn_rate": 0.2
-}, {
-&"count": 20,
-&"enemy_scene_idxs": [0, 1],
-&"spawn_rate": 0.2
-}, {
-"count": 40,
-"enemy_pool": [{
-"idx": 0,
-"weight": 0.5
-}, {
-"idx": 1,
-"weight": 0.5
-}],
-"spawn_rate": 0.1
-}])
 
 [node name="ArenaBounds" parent="." instance=ExtResource("10_ouso4")]
 top_left_marker = NodePath("TopLeft")

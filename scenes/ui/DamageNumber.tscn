@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://nnlj2lhurk4b"]
+
+[ext_resource type="Script" uid="uid://c7rxpdrgm2r2r" path="res://scenes/ui/DamageNumber.gd" id="1_a6ngf"]
+
+[node name="Label" type="Label"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.705882, 0, 0, 0.862745)
+script = ExtResource("1_a6ngf")

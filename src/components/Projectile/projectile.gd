@@ -58,6 +58,11 @@ func _on_area_entered(area: Area2D) -> void:
 	if not dmg_target.has_method("take_damage") and parent_node and parent_node.has_method("take_damage"):
 		dmg_target = parent_node
 
+	# Evitar fuego amigo: si el instigator es player, no dañar al player
+	if instigator and instigator.is_in_group("player"):
+		if dmg_target.is_in_group("player"):
+			return
+
 	_hit = true
 	# MUY IMPORTANTE: pasar 'self' como source para que Enemy lea 'knockback'
 	dmg_target.call("take_damage", damage, self)
