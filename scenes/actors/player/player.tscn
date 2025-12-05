@@ -1,4 +1,4 @@
-[gd_scene load_steps=42 format=3 uid="uid://dxi5wj17qwnh0"]
+[gd_scene load_steps=44 format=3 uid="uid://dxi5wj17qwnh0"]
 
 [ext_resource type="Script" uid="uid://cec8wyv4xotbh" path="res://scenes/actors/player/player.gd" id="1_8afob"]
 [ext_resource type="Script" uid="uid://4vg0eg7sgk3q" path="res://src/components/progression/Magnet.gd" id="2_inh5e"]
@@ -18,13 +18,15 @@
 [ext_resource type="AudioStream" uid="uid://bk17q661o2yhn" path="res://assets/audio/sfx/lightning-strike-386161.mp3" id="15_5mkge"]
 [ext_resource type="PackedScene" uid="uid://544f1bq0dy25" path="res://src/components/upgrades/upgrade_manager.tscn" id="15_xducv"]
 [ext_resource type="PackedScene" uid="uid://c3588n26qtjwx" path="res://scenes/ui/UpgradePicker.tscn" id="16_yab6n"]
-[ext_resource type="Resource" path="res://resources/upgrades/hp_up_1.tres" id="18_0w3ce"]
+[ext_resource type="Resource" uid="uid://bq4xecxop3yht" path="res://resources/upgrades/hp_up_1.tres" id="18_0w3ce"]
 [ext_resource type="Resource" path="res://resources/upgrades/speed_up_1.tres" id="19_ffoq6"]
-[ext_resource type="Resource" path="res://resources/upgrades/proj_damage_1.tres" id="20_cat03"]
+[ext_resource type="Resource" uid="uid://gduxjipwen8" path="res://resources/upgrades/proj_damage_1.tres" id="20_cat03"]
 [ext_resource type="Resource" path="res://resources/upgrades/proj_rof_1.tres" id="21_7i6t6"]
 [ext_resource type="Resource" path="res://resources/upgrades/melee_damage_1.tres" id="22_e5w6i"]
 [ext_resource type="Resource" path="res://resources/upgrades/magnet_radius_1.tres" id="23_t1vny"]
 [ext_resource type="Resource" path="res://resources/upgrades/detector_radius_1.tres" id="24_0e3lr"]
+[ext_resource type="Script" uid="uid://bmo8bpdfa0mk6" path="res://src/components/Weapon/SlowAuraWeapon.gd" id="26_ffoq6"]
+[ext_resource type="PackedScene" uid="uid://cjhlfbrqlpl4g" path="res://scenes/weapons/SlowAura.tscn" id="27_cat03"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_dovo2"]
 radius = 14.0
@@ -146,10 +148,10 @@ radius = 402.95
 collision_layer = 2
 collision_mask = 65
 script = ExtResource("1_8afob")
-speed = 200.0
+speed = 102.0
 melee_weapon = NodePath("MeleeWeapon")
 ranged_weapon = NodePath("ProjectileWeapon")
-extra_ranged_weapon_paths = Array[NodePath]([NodePath("Beam")])
+extra_ranged_weapon_paths = Array[NodePath]([NodePath("Beam"), NodePath("SlowAura")])
 health = NodePath("Health")
 enemy_detector = NodePath("EnemyDetector")
 auto_melee_extra_reach = 64.0
@@ -226,10 +228,16 @@ parameters/looping = false
 
 [node name="Experience" type="Node" parent="."]
 script = ExtResource("11_8bj4u")
+xp_table = Array[int]([0, 50, 300, 550, 800, 1050, 1300, 1550, 1800, 2050])
 
 [node name="UpgradeManager" parent="." instance=ExtResource("15_xducv")]
-upgrades = Array[Resource]([ExtResource("18_0w3ce"), ExtResource("19_ffoq6"), ExtResource("20_cat03"), ExtResource("21_7i6t6"), ExtResource("22_e5w6i"), ExtResource("23_t1vny"), ExtResource("24_0e3lr")])
+upgrades = Array[Resource]([ExtResource("18_0w3ce"), ExtResource("19_ffoq6"), ExtResource("20_cat03"), ExtResource("21_7i6t6"), ExtResource("22_e5w6i"), ExtResource("23_t1vny"), ExtResource("24_0e3lr"), ExtResource("19_ffoq6"), ExtResource("18_0w3ce"), ExtResource("20_cat03")])
 
 [node name="UpgradePicker" parent="." instance=ExtResource("16_yab6n")]
+
+[node name="SlowAura" type="Node" parent="."]
+script = ExtResource("26_ffoq6")
+aura_scene = ExtResource("27_cat03")
+cooldown = 1.0
 
 [connection signal="body_entered" from="EnemyDetector" to="EnemyDetector" method="_on_body_entered"]

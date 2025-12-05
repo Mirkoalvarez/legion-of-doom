@@ -37,7 +37,10 @@ func _fire(dir: Vector2, owner_node: Node) -> void:
 
 	var space: PhysicsDirectSpaceState2D = owner2d.get_world_2d().direct_space_state
 	var params := PhysicsRayQueryParameters2D.create(start, end)
-	params.exclude = [owner_node]
+	var exclude: Array = [owner_node]
+	for c in owner_node.get_children():
+		exclude.append(c)
+	params.exclude = exclude
 	params.collide_with_areas = true
 	params.collide_with_bodies = true
 
@@ -53,7 +56,17 @@ func _fire(dir: Vector2, owner_node: Node) -> void:
 
 	# --- Aplica daño si corresponde
 	if target and target.has_method("take_damage"):
-		target.call("take_damage", damage, owner_node)
+		# Evitar fuego amigo: no dañar al owner ni a sus hijos, ni al mismo grupo player
+		var skip := false
+		if target == owner_node:
+			skip = true
+		elif owner_node.has_method("is_ancestor_of") and owner_node.is_ancestor_of(target):
+			skip = true
+		elif owner_node.is_in_group("player") and target.is_in_group("player"):
+			skip = true
+
+		if not skip:
+			target.call("take_damage", damage, owner_node)
 
 	# --- SFX ---
 	_play_sfx(owner_node)

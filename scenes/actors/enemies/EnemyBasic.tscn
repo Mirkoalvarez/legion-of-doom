@@ -127,12 +127,17 @@ collision_mask = 33
 motion_mode = 1
 safe_margin = 0.1
 script = ExtResource("1_gejs6")
+speed = 100.0
 max_hp = 55
 separation_radius = 20.0
 xp_orb_scene = ExtResource("2_nmewm")
+xp_drop = 2
 health_pickup_scene = ExtResource("3_lxjcx")
+health_drop_chance = 0.05
 speed_pickup_scene = ExtResource("4_wndo2")
+speed_drop_chance = 0.03
 projdam_pickup_scene = ExtResource("5_2dsxc")
+projdam_drop_chance = 0.03
 damage_number_scene = ExtResource("6_2dsxc")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

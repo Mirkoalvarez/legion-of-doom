@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://bsfqc3jce0ste"]
+[gd_scene load_steps=25 format=3 uid="uid://bsfqc3jce0ste"]
 
 [ext_resource type="Script" uid="uid://bi5fsv8xt7dne" path="res://scenes/actors/enemies/enemy.gd" id="1_01xkg"]
 [ext_resource type="Texture2D" uid="uid://lctw4yverefq" path="res://assets/sprites/enemies/all_enemies/Globin.png" id="2_4yulj"]
@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://ck22sy3vkkxuf" path="res://scenes/pickups/stat_pickup_speed.tscn" id="4_i3upq"]
 [ext_resource type="PackedScene" uid="uid://b2ogoi84ln5fl" path="res://scenes/ui/HealthBar2d.tscn" id="5_c1whg"]
 [ext_resource type="PackedScene" uid="uid://dl2rsv8nxmmfw" path="res://scenes/pickups/stat_pickup_projdam.tscn" id="5_vq6l7"]
+[ext_resource type="PackedScene" uid="uid://nnlj2lhurk4b" path="res://scenes/ui/DamageNumber.tscn" id="6_rkedy"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_rkedy"]
 radius = 14.0
@@ -127,9 +128,14 @@ script = ExtResource("1_01xkg")
 speed = 120.0
 max_hp = 100
 xp_orb_scene = ExtResource("2_c1whg")
+xp_drop = 6
 health_pickup_scene = ExtResource("3_rkedy")
+health_drop_chance = 0.01
 speed_pickup_scene = ExtResource("4_i3upq")
+speed_drop_chance = 0.02
 projdam_pickup_scene = ExtResource("5_vq6l7")
+projdam_drop_chance = 0.02
+damage_number_scene = ExtResource("6_rkedy")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_rkedy")
@@ -148,6 +154,7 @@ collision_mask = 160
 [node name="Hitbox" parent="." instance=ExtResource("4_aiq1a")]
 collision_layer = 64
 collision_mask = 8
+damage = 20
 
 [node name="HealthBar2D" parent="." instance=ExtResource("5_c1whg")]
 position = Vector2(1, -16)

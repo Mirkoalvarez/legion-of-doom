@@ -49,22 +49,29 @@ func _physics_process(delta: float) -> void:
 		_despawn()
 
 func _on_area_entered(area: Area2D) -> void:
-	if _hit: return
-	if area == self or area == instigator: return
-	if not area.is_in_group("hurtbox"): return
+	if _hit:
+		return
+	if area == self or area == instigator:
+		return
+	if not area.is_in_group("hurtbox"):
+		return
 
 	var dmg_target: Node = area
 	var parent_node: Node = area.get_parent()
 	if not dmg_target.has_method("take_damage") and parent_node and parent_node.has_method("take_damage"):
 		dmg_target = parent_node
 
-	# Evitar fuego amigo: si el instigator es player, no dañar al player
-	if instigator and instigator.is_in_group("player"):
-		if dmg_target.is_in_group("player"):
+	# Avoid friendly fire: skip if instigator is self or ancestor (hurtbox), or same player group
+	if instigator:
+		if dmg_target == instigator:
+			return
+		if instigator.has_method("is_ancestor_of") and instigator.is_ancestor_of(dmg_target):
+			return
+		if instigator.is_in_group("player") and dmg_target.is_in_group("player"):
 			return
 
 	_hit = true
-	# MUY IMPORTANTE: pasar 'self' como source para que Enemy lea 'knockback'
+	# Pass self as source for knockback reading
 	dmg_target.call("take_damage", damage, self)
 	set_deferred("monitoring", false)
 	set_deferred("monitorable", false)

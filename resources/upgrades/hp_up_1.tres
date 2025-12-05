@@ -1,6 +1,6 @@
-[gd_resource type="Resource" load_steps=2 format=3 uid="uid://hp_up_1"]
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=2 format=3 uid="uid://bq4xecxop3yht"]
 
-[ext_resource type="Script" path="res://src/components/upgrades/UpgradeData.gd" id="1"]
+[ext_resource type="Script" uid="uid://2aj8ysmg6gys" path="res://src/components/upgrades/UpgradeData.gd" id="1"]
 
 [resource]
 script = ExtResource("1")
@@ -8,5 +8,6 @@ id = "hp_up_1"
 name = "Vitalidad +20"
 desc = "+20 vida máxima."
 type = "stat"
-effects = {"player.max_hp_add": 20}
-
+effects = {
+"player.max_hp_add": 20
+}

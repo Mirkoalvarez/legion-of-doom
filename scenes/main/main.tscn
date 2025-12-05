@@ -1,7 +1,8 @@
-[gd_scene load_steps=17 format=3 uid="uid://kxwb4fq37i2w"]
+[gd_scene load_steps=19 format=3 uid="uid://kxwb4fq37i2w"]
 
 [ext_resource type="Script" uid="uid://2vp5l2p65rd5" path="res://scenes/main/main.gd" id="1_hyk8p"]
 [ext_resource type="PackedScene" uid="uid://dxi5wj17qwnh0" path="res://scenes/actors/player/player.tscn" id="2_iuonh"]
+[ext_resource type="PackedScene" uid="uid://dbbnc6gb1i2o1" path="res://scenes/ui/TimerGlobal.tscn" id="3_th5th"]
 [ext_resource type="PackedScene" uid="uid://c4f5tj7a02ahc" path="res://scenes/ui/hud_xp.tscn" id="4_hujxm"]
 [ext_resource type="PackedScene" uid="uid://b0wdoh63scv42" path="res://scenes/actors/enemies/EnemyBasic.tscn" id="4_l3cfh"]
 [ext_resource type="PackedScene" uid="uid://c3jbdmtbanto0" path="res://scenes/world/world.tscn" id="5_6q06x"]
@@ -21,6 +22,10 @@ font_size = 34
 font = ExtResource("5_a8run")
 font_size = 34
 font_color = Color(0.529412, 0, 0.823529, 1)
+
+[sub_resource type="LabelSettings" id="LabelSettings_th5th"]
+font = ExtResource("5_a8run")
+font_size = 50
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k2fmo"]
 size = Vector2(14155, 0.108175)
@@ -60,6 +65,13 @@ label_settings = SubResource("LabelSettings_blune")
 
 [node name="HUD_Health" parent="UI" instance=ExtResource("5_yyfjg")]
 player_path = NodePath("../../Player")
+
+[node name="TimerGlobal" parent="UI" instance=ExtResource("3_th5th")]
+offset_left = 900.0
+offset_top = 82.0
+offset_right = 1019.0
+offset_bottom = 105.0
+label_settings = SubResource("LabelSettings_th5th")
 
 [node name="HUD_Wave" parent="UI" instance=ExtResource("6_b1x3f")]
 spawner_path = NodePath("../../Spawner")
@@ -116,6 +128,31 @@ unique_name_in_owner = true
 camera_path = NodePath("../Player/Camera2D")
 spawn_area = Rect2(0, 0, 0, 0)
 bounds_path = NodePath("../ArenaBounds")
+end_time = 240.0
+phases = Array[Dictionary]([{
+"enemy_pool": [{
+"path": "res://scenes/actors/enemies/EnemyBasic.tscn",
+"weight": 1.0
+}],
+"hp_mult": 1.0,
+"max_concurrent": 35,
+"spawn_rate": 0.5,
+"speed_mult": 1.0,
+"time": 0.0
+}, {
+"enemy_pool": [{
+"path": "res://scenes/actors/enemies/EnemyBasic.tscn",
+"weight": 0.6
+}, {
+"path": "res://scenes/actors/enemies/Goblin/goblin.tscn",
+"weight": 0.4
+}],
+"hp_mult": 1.2,
+"max_concurrent": 50,
+"spawn_rate": 0.5,
+"speed_mult": 1.05,
+"time": 45.0
+}])
 
 [node name="ArenaBounds" parent="." instance=ExtResource("10_ouso4")]
 top_left_marker = NodePath("TopLeft")
@@ -128,7 +165,10 @@ position = Vector2(-1438, -806)
 position = Vector2(3360, 1892)
 
 [node name="Enemy" parent="." instance=ExtResource("4_l3cfh")]
-position = Vector2(600, 400)
+position = Vector2(508, 364)
+health_drop_chance = 0.01
+speed_drop_chance = 0.02
+projdam_drop_chance = 0.02
 
 [editable path="World"]
 [editable path="UI/HUD_XP"]

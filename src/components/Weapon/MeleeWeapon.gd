@@ -18,6 +18,7 @@ func _fire(dir: Vector2, owner_node: Node) -> void:
 	var owner2d := owner_node as Node2D
 	var swing := swing_scene.instantiate()
 	owner2d.add_child(swing)
+	_set_instigator_recursive(swing, owner_node)
 
 	# posición base delante del player
 	var out: Vector2 = dir.normalized() * range_px
@@ -29,6 +30,7 @@ func _fire(dir: Vector2, owner_node: Node) -> void:
 	# pasar daño/knockback al hitbox (Enemy lo lee de 'source')
 	if "damage" in swing: swing.set("damage", damage)
 	if "knockback" in swing: swing.set("knockback", knockback)
+	if "instigator" in swing: swing.set("instigator", owner_node)
 
 	#Sonido de SWORD
 	var sfx := get_node_or_null("SFX_Sword") as AudioStreamPlayer2D
@@ -64,3 +66,12 @@ func _fire(dir: Vector2, owner_node: Node) -> void:
 	t.timeout.connect(swing.queue_free)
 	swing.add_child(t)
 	t.start()
+
+# Propaga el instigator al nodo y sus hijos si exponen la propiedad
+func _set_instigator_recursive(n: Node, inst: Node) -> void:
+	if n == null or inst == null:
+		return
+	if n.has_method("set") and "instigator" in n:
+		n.set("instigator", inst)
+	for child in n.get_children():
+		_set_instigator_recursive(child, inst)

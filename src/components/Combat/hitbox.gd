@@ -3,6 +3,7 @@ extends Area2D
 @export var damage: int = 10
 @export var one_shot: bool = false
 @export var knockback: float = 0.0
+@export var instigator: Node = null
 signal hit(body: Node)
 
 func _ready() -> void:
@@ -14,6 +15,13 @@ func _ready() -> void:
 		area_entered.connect(_on_area_entered)
 
 func _apply_damage(target: Node) -> void:
+	# Evitar fuego amigo
+	if instigator:
+		if target == instigator:
+			return
+		if instigator.has_method("is_ancestor_of") and instigator.is_ancestor_of(target):
+			return
+
 	if target and target.has_method("take_damage"):
 		target.take_damage(damage, self)
 
@@ -28,6 +36,10 @@ func _apply_damage(target: Node) -> void:
 		queue_free()
 
 func _on_body_entered(body: Node) -> void:
+	if body == instigator:
+		return
+	if instigator and instigator.has_method("is_ancestor_of") and instigator.is_ancestor_of(body):
+		return
 	_apply_damage(body)
 
 func _on_area_entered(area: Area2D) -> void:

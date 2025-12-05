@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbbnc6gb1i2o1"]
+
+[ext_resource type="Script" uid="uid://djhdh4vagcjlx" path="res://scenes/ui/TimerGlobal.gd" id="1_gr54a"]
+
+[node name="TimerGlobal" type="Label"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 200.0
+offset_bottom = 44.0
+script = ExtResource("1_gr54a")

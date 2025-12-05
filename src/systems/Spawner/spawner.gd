@@ -8,6 +8,7 @@ class_name Spawner
 signal wave_started(index: int)
 signal wave_cleared(index: int)
 signal all_waves_cleared()
+signal end_reached()
 
 # ---- CAMARA / AREA ----
 @export var camera_path: NodePath
@@ -19,6 +20,7 @@ signal all_waves_cleared()
 # ---- CONTROL ----
 @export var auto_start: bool = true
 @export var max_concurrent: int = 30
+@export var end_time: float = -1.0 # segundos; <0 desactivado
 
 # ---- ENEMIGOS ----
 @export var enemy_scenes: Array[PackedScene] = [] # pool de escenas (indices 0..n)
@@ -66,6 +68,7 @@ var _spawn_timer: float = 0.0
 var _current_phase: Dictionary = {}
 var _current_max_concurrent: int = 30
 var _endless_running: bool = false
+var _ended: bool = false
 
 func _ready() -> void:
 	_camera = get_node_or_null(camera_path) as Camera2D
@@ -95,6 +98,14 @@ func _process(dt: float) -> void:
 		return
 
 	_elapsed += dt
+
+	# Fin por tiempo total
+	if not _ended and end_time > 0.0 and _elapsed >= end_time:
+		_ended = true
+		_endless_running = false
+		set_process(false)
+		emit_signal("end_reached")
+		return
 
 	# avanzar fase si llega el siguiente umbral de tiempo
 	if _phase_idx + 1 < phases.size():

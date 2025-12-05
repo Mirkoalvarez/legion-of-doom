@@ -8,7 +8,7 @@ signal level_up(new_level: int)
 @export var current_xp: int = 0
 
 # Tabla de XP total requerida por nivel (index = level)
-@export var xp_table: Array[int] = [0, 50, 120, 200, 290, 390]
+@export var xp_table: Array[int] = [0, 50, 300, 550, 800, 1050]
 
 # Recompensas por nivel (usa Dictionary para cumplir requisito)
 @export var rewards_by_level: Dictionary = {

@@ -24,7 +24,7 @@ var _kb_vel: Vector2 = Vector2.ZERO
 
 # --- XP DROP ---
 @export var xp_orb_scene: PackedScene
-@export var xp_drop: int = 10
+@export var xp_drop: int = 5
 
 # --- DROPS EXTRA ---
 @export var health_pickup_scene: PackedScene
@@ -248,7 +248,6 @@ func _show_damage_number(amount: int) -> void:
 
 	# Fallback: si es Label/RichText, setear texto y hacer tween simple
 	if num is Label or num is RichTextLabel:
-		var lbl := num as CanvasItem
 		if "text" in num:
 			num.set("text", str(amount))
 		# Animación de subir y desvanecer
